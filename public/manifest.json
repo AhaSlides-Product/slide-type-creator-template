@@ -1,7 +1,7 @@
 [
   {
     "name": "Demo greeting",
-    "pinKey": "demo",
+    "pinKey": "developer-demo",
     "desc": "A minimal greeting slide — title + image on canvas, short response on audience",
     "tags": ["Unscored", "Polls & opinions", "Workplace", "Education"],
     "ahaConfig": {
@@ -22,7 +22,7 @@
       "videoTutorialUrl": "",
       "plugin": true,
       "defaultSlideTitle": "",
-      "pinKey": "demo",
+      "pinKey": "developer-demo",
       "canvasUrl": "/demo/canvas",
       "audienceUrl": "/demo/audience",
       "editorUrl": "/demo/settings",
@@ -50,7 +50,7 @@
   },
   {
     "name": "Horse Race",
-    "pinKey": "horse-race",
+    "pinKey": "developer-horse-race",
     "desc": "Audience answers power a live horse race",
     "tags": ["Scored", "Fun & gamification", "Casual", "Education"],
     "ahaConfig": {
@@ -71,7 +71,7 @@
       "videoTutorialUrl": "",
       "plugin": true,
       "defaultSlideTitle": "",
-      "pinKey": "horse-race",
+      "pinKey": "developer-horse-race",
       "canvasUrl": "/horse-race/canvas",
       "audienceUrl": "/horse-race/audience",
       "editorUrl": "/horse-race/settings",

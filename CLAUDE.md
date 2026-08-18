@@ -35,9 +35,11 @@ produce a NEW slide type — do NOT edit `demo/`. Steps:
    - `Audience.vue` — the participant UI; send answers with
      `new ApiClient(baseUrl).sendLiveSubmission(SlideType.X, payload)`.
 4. **Declare it** in `public/manifest.json`: append an entry (schema below) with
-   `type`/`pinKey` = the slug, `canvasUrl` = `/<slug>/canvas`, `audienceUrl` = `/<slug>/audience`,
-   `editorUrl` = `/<slug>/settings`, the `setting.enable*` flags you want, and `handlerUrl` =
-   your live-count backend if the slide has one (else `""`).
+   `type` = the slug, **`pinKey` = `developer-<slug>`** (prefix required; keep the top-level
+   `pinKey` and `ahaConfig.pinKey` equal), `canvasUrl` = `/<slug>/canvas`,
+   `audienceUrl` = `/<slug>/audience`, `editorUrl` = `/<slug>/settings`, the `setting.enable*`
+   flags you want, and `handlerUrl` = your live-count backend if the slide has one (else `""`).
+   URLs/folder/`type` stay the bare slug; only `pinKey` carries the `developer-` prefix.
 5. **Design** per the `aha-design-*` skills; keep the surfaces theme-driven (readable on light
    AND dark decks) — take colour from the deck theme, never a fixed ink on the canvas.
 6. **Verify**: `npm run type-check && npm run build`; `npm run dev` to preview
@@ -84,6 +86,10 @@ host prefixes with this deploy's domain.
   "visible": true
 }
 ```
+
+`pinKey` (top-level and `ahaConfig.pinKey`, kept equal) is always prefixed **`developer-`**
+(e.g. `developer-horse-race`) so a presenter-created type never collides with a built-in one;
+`type`, the URLs and the folder use the bare slug.
 
 You may only change VALUES of these keys — never add, remove or rename a key (the host reads a
 fixed shape). Turn a host feature on/off via its `setting.enable*` flag.
