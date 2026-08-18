@@ -1,0 +1,306 @@
+{
+  "version": 7,
+  "referenceSlug": "ui-standard",
+  "supersededLiterals": {
+    "rule": "Every value this standard has ever RETIRED, as data. `npm run verify:spec-literals` fails the build when an agent-facing doc still asserts one of them, which is what stops the prose and the gate from disagreeing. When you change a value in this spec, add the old one here in the same commit \u2014 that is the whole maintenance cost, and it is what lets check A8 (\"do not retype spec literals\") be enforced by a machine instead of by a judge's prompt.",
+    "markerNote": "A doc may still name a retired value ON PURPOSE \u2014 a \"do not hardcode this\" example, or a note recording the history. Put `superseded-ok` in a comment on that line to say so deliberately.",
+    "entries": [
+      {
+        "was": "p-6",
+        "now": "p-4",
+        "scope": "settings.rootClass",
+        "since": 6,
+        "why": "MEASURED against the live host: the plugin iframe is 32px wider than the native settings column, so 16px padding lands content on the native edges. p-6 double-padded it and every row read visibly inset."
+      },
+      {
+        "was": "mb-8",
+        "now": "mb-6",
+        "scope": "settings.fieldGapClass",
+        "since": 6,
+        "why": "MEASURED: consecutive native settings sit ~24px apart. 32px read as too airy next to the host's own rhythm."
+      },
+      {
+        "was": "font-semibold",
+        "now": "font-bold",
+        "scope": "settings.labelClass",
+        "since": 6,
+        "why": "MEASURED: the host's own section labels are 14px / weight 700. 600 read visibly lighter beside them."
+      },
+      {
+        "pattern": "\\b14\\s*(?:px)?\\s*/\\s*600\\b",
+        "was": "14px / 600",
+        "now": "14px / 700",
+        "scope": "settings.labelClass",
+        "since": 6,
+        "why": "Same measurement as font-semibold, written as prose in the skill and the human doc. A weight is a number in prose and a utility in code; both spellings have to move together."
+      }
+    ]
+  },
+  "transparency": {
+    "rule": "A slide type is ALWAYS an iframe embedded in the presenter or audience app, so the HOST owns the background. Every surface this repo paints \u2014 html, body, #app, the view root, and any panel/card/row inside it \u2014 stays transparent. Never paint an opaque background at any level.",
+    "forbiddenSurfaceClasses": [
+      "bg-white",
+      "bg-black",
+      "bg-aha-sky",
+      "bg-aha-rose",
+      "bg-aha-blush",
+      "bg-aha-mint",
+      "bg-aha-lavender",
+      "bg-aha-space",
+      "bg-aha-purple",
+      "bg-aha-pink",
+      "bg-aha-dark-purple",
+      "bg-aha-indigo"
+    ],
+    "tintLayerClass": "pointer-events-none absolute inset-0 bg-current opacity-10",
+    "outlineLayerClass": "pointer-events-none absolute inset-0 rounded-aha border border-current opacity-20",
+    "layerNote": "Tailwind 3 does not generate opacity modifiers on currentColor (bg-current/10 emits nothing), so a deck-tracking tint or outline is a separate absolutely-positioned layer carrying bg-current/border-current plus an opacity-* utility. Its colour comes from the ink of the surface it sits in, so it follows the deck instead of painting a fixed grey."
+  },
+  "autoHeight": {
+    "settings": "always",
+    "audience": "always",
+    "canvas": "considered",
+    "canvasJustificationMarker": "canvas autoHeight:",
+    "canvasJustificationNote": "A Canvas that opts INTO autoHeight states why in a comment on the line immediately above the call, starting with the marker \"canvas autoHeight:\". CHECK 7l reads that marker. Its first version instead scanned the 600 characters before the call for any `//` or `/*` \u2014 and because every file in this repo opens with a comment block, that window essentially always contained one, so the check could not fail. A machine-readable token is what makes an honest sentence close the finding deterministically; the same idea as slideAttributes.justificationMarker.",
+    "note": "Settings and Audience are content-height iframes: the host shrink-wraps them from the height the plugin reports, so both ALWAYS pass { autoHeight: true } explicitly \u2014 relying on the default silently loses it the moment someone passes an options object without the field. The Canvas normally lives inside the host's fixed 16:9 stage and must NOT report a content height; turn it on only when the slide type's purpose genuinely calls for a content-driven canvas, and say why at the call site."
+  },
+  "settings": {
+    "rootClass": "flex flex-col p-4",
+    "forbiddenRootClasses": [
+      "h-full",
+      "overflow-y-auto",
+      "gap-"
+    ],
+    "fieldGapClass": "mb-6",
+    "labelClass": "mb-1 flex items-center gap-1 text-sm font-bold text-aha-panel-ink",
+    "helpTextClass": "mb-2 text-xs text-aha-indigo/70",
+    "toggleRowClass": "flex items-center justify-between",
+    "optionRowClass": "relative rounded-aha p-2",
+    "subSettingWrapperClass": "mt-4 border-l border-aha-space/10 pl-4",
+    "dangerActionPosition": "last",
+    "allowDividers": false,
+    "allowTintedSectionCards": false,
+    "tooltipMaxWidthPx": 200,
+    "tooltipMaxChars": 120,
+    "inkNote": "The settings panel is embedded in the host EDITOR panel, which is fixed app chrome rather than a deck-themed surface \u2014 so its ink stays a fixed brand token (the aha-settings-label / text-aha-indigo family). Ink still tracks whatever the background tracks; here that background is the host's own panel, not the deck.",
+    "labelIconClass": "text-aha-panel-ink/50",
+    "labelTooltipRule": "Every label may carry a trailing info icon whose tooltip states the constraint or caveat \u2014 that is the host pattern: on a native slide EVERY settings label (\"C\u00e2u h\u1ecfi c\u1ee7a b\u1ea1n\", \"\u0110\u00e1p \u00e1n\", \"\u0110i\u1ec3m\", \"Gi\u1edbi h\u1ea1n th\u1eddi gian\", \"B\u1ea3ng x\u1ebfp h\u1ea1ng\") has one. Use it wherever a rule is worth stating; keep the copy inside tooltipMaxWidthPx.",
+    "hostPanelAlignment": "MEASURED on the live staging presenter (1600px viewport): the native settings column runs x=1127..1478 (351px) and its section labels sit flush at x=1127, because the host panel supplies the outer padding. The plugin iframe is 383px wide \u2014 32px wider than that column \u2014 so a 16px horizontal padding (p-4) lands the plugin content on exactly the native edges. p-6 (the pre-v6 value) double-padded it: content came out 335px wide and visibly inset from every native row.",
+    "hostLabelReference": "MEASURED: section label = 14px / weight 700 / rgb(75,75,75); a single-row setting label with a leading icon = 14px / weight 400, inset 22px. The pre-v6 standard said 600 / #3E3E5A, which read wrong next to the host's own labels.",
+    "fieldGapReference": "MEASURED: two consecutive single-row settings (\"Gi\u1edbi h\u1ea1n th\u1eddi gian\" -> \"B\u1ea3ng x\u1ebfp h\u1ea1ng\") have label tops 63px apart with ~40px rows, i.e. ~24px between blocks. mb-8 (32px) read as too airy against the host.",
+    "legacyLabelClassNote": "`.aha-settings-label` in main.css (text-sm font-semibold text-aha-indigo) is the PRE-v6 class and is left untouched on purpose: it is shared by every existing panel, and rewriting it would restyle slide types this standard has not audited. New and rebuilt panels use labelClass above."
+  },
+  "spacingScalePxToTailwind": {
+    "4": "1",
+    "8": "2",
+    "12": "3",
+    "16": "4",
+    "24": "6",
+    "32": "8",
+    "48": "12"
+  },
+  "typography": {
+    "settingsLabelPx": 14,
+    "settingsLabelWeight": 600,
+    "settingsHelpPx": 12,
+    "audienceBodyPx": 14,
+    "audienceHelpPx": 12,
+    "audienceQuestionPx": 22,
+    "formInputPx": 16
+  },
+  "controls": {
+    "inputRadiusPx": 8,
+    "inputHeightPx": 40,
+    "buttonRadiusPx": 8,
+    "touchTargetMinPx": 44,
+    "touchTargetMaxPx": 48,
+    "tappableGapMinPx": 8,
+    "inputNumberNeedsSizeLarge": true
+  },
+  "contrast": {
+    "textAA": 4.5,
+    "largeTextAA": 3
+  },
+  "nativeToAnt": {
+    "textarea": "Textarea",
+    "select": "Select + SelectOption",
+    "input[type=text]": "Input",
+    "input[type=number]": "InputNumber",
+    "input[type=checkbox]": "Checkbox",
+    "input[type=radio]": "RadioGroup + Radio",
+    "input[type=file]": "Upload",
+    "button": "Button"
+  },
+  "colour": {
+    "rule": "On Canvas and Audience, EVERY colour \u2014 text, any surface treatment, any mark \u2014 comes from the deck theme the host passes down. A slide type does not invent colour. Only the three exceptions below may sit outside the theme, and a user prompt that explicitly asks for a specific colour is the only way to add a fourth.",
+    "themeXprops": {
+      "slide.textColour": "The ink the deck author chose. All text and icon colour on Canvas and Audience tracks this.",
+      "slide.baseColour": "The deck background colour. Read it to REASON about the backdrop (contrast decisions); never to repaint it \u2014 nothing in a slide type paints a background. Presenter surface only.",
+      "presentationColorPalette": "The deck accent palette (auto-padded to 30 entries). Marks \u2014 bar fills, chart segments, chips, team colours \u2014 index into this.",
+      "presentationLighterColorPalette": "Lighter variants of the same palette, for a second tier of marks.",
+      "presentation.fontFamily": "The deck font. Safe to inherit everywhere: it changes shape, not contrast."
+    },
+    "allowedExceptions": [
+      "A FALLBACK for when the host sends nothing: `slideProps.textColour ?? ahaBrand.space`. The theme value always wins when present.",
+      "A SEMANTIC signal \u2014 correct/incorrect, success/error/warning/info \u2014 from src/iframe/brandTokens.ts. Success must read as success in every deck, which a deck accent cannot promise. Pair it with a non-colour cue.",
+      "An explicit instruction in the user prompt naming a specific colour or treatment. Note it in a comment at the call site so the next reader knows it was asked for, not invented."
+    ],
+    "forbiddenOnCanvasAndAudience": [
+      "raw hex / rgb() / hsl() / named CSS colours",
+      "aha-* Tailwind colour utilities (text-aha-*, bg-aha-*, border-aha-*, ring-aha-*) \u2014 those are bundled brand colours, not the deck theme",
+      "a self-computed \"adapt to the theme\" guess (luminance flips, derived tints) instead of reading the theme"
+    ],
+    "allowRawHexInVue": false,
+    "tokenSources": [
+      "src/iframe/brandTokens.ts (fallbacks + semantic signals only)",
+      "tailwind.config.js aha-* palette (Settings panel only)"
+    ],
+    "workbenchLimit": "The playground broker seeds presentationColorPalette*, fontFamily and language but NOT slide.textColour / slide.baseColour, so locally the fallback renders. Verify theme behaviour in the product apps."
+  },
+  "canvas": {
+    "framedRootClass": "flex h-full w-full flex-col bg-transparent p-6",
+    "resultsSurfaceClass": "rounded-aha p-6",
+    "barTrackClass": "relative h-3 w-full overflow-hidden rounded-full",
+    "pdfScrollRootAttr": "data-pdf-scroll-root",
+    "markColourRule": "A mark carries deck colour: index presentationColorPalette by item position (palette[i % palette.length]) so each option keeps a stable, deck-derived colour, and the room sees ITS OWN palette rather than one accent for everything. presentationLighterColorPalette is the second tier. A SEMANTIC marker (leader, correct) stays a bundled token."
+  },
+  "audience": {
+    "rootClass": "flex w-full flex-col bg-transparent p-4",
+    "tappableGapClass": "gap-2",
+    "tapRowClass": "relative flex w-full items-center gap-3 rounded-aha px-4 py-3 text-left",
+    "submittedCardClass": "relative flex flex-col items-center gap-2 rounded-aha p-6 text-center",
+    "markColourRule": "The selected / submitted state of a tappable takes its accent from presentationColorPalette by the option position, matching what the canvas paints for that option."
+  },
+  "slideAttributes": {
+    "rule": "A slide attribute is schema you own forever \u2014 migrated, persisted and reasoned about on every read. Before adding a field, check whether the HOST already provides it behind an `enable*` flag, then whether an existing field already carries the information. A new field is the last resort and needs a stated reason.",
+    "decisionOrder": [
+      "1. HOST SETTING \u2014 is it already provided behind an `enable*` flag? Turn the flag on in OVERRIDES (scripts/generate-slide-types-api.mjs) and read the value off slideProps. Add no field and no control. Inventory: the reuse-host-capabilities skill.",
+      "2. EXISTING FIELD \u2014 does a field on this config already carry it? Derive from that instead of storing a second copy that can disagree.",
+      "3. NEW FIELD \u2014 only now, and say in a comment why neither of the above fit."
+    ],
+    "hostSettingByNeed": {
+      "title / question": "enableQuestionTitle \u2192 read slideProps.title (+ `titleField` in metadata.ts names the config field the host writes into)",
+      "subtitle / description": "enableQuestionDescription \u2192 the host renders the description field under the title",
+      "question image": "enableQuestionImage \u2192 the host renders its own image picker for the question",
+      "countdown / duration": "enableTimeLimit \u2192 read slideProps.timeToAnswer; do not run your own timer authority",
+      "close / lock submissions": "enableStopSubmitssionSetting (doubled s \u2014 see spellingTrap) \u2192 read slideProps.stopSubmission",
+      "hide results until reveal": "enableHideResultSetting \u2192 read slideProps.hideResult",
+      "vote / response count": "DEPRECATED (enableVoteCount / setSubmissionCount) \u2014 the host reads audiences_response_count, set automatically from the backend; report nothing",
+      "answer more than once": "enableMultipleSubmission \u2192 read slideProps.openEndedMultipleOption",
+      "\"Other settings\" section heading": "enableLabelOtherSetting \u2192 the host draws the heading + divider the other Other-settings controls sit under. NOT an \"Other\" answer choice. Turn it on whenever you enable any control in that group, or your checkbox floats heading-less (AHA-323)",
+      "profanity filter on responses": "enableFilteringProfanitySetting \u2192 the host renders the filter toggle; also see filterProfaneWords() on xprops",
+      "audience attaches an image to their answer": "enableImageSubmissionSetting \u2192 the host renders the image-submission toggle + upload path",
+      "show live results on the audience device": "enableShowVotingResultsOnAudienceVisible \u2192 the host renders the toggle; do not build your own \"show results\" switch",
+      "cap votes per participant": "enableVotesPerParticipantSetting \u2192 the host renders the max-votes input",
+      "extra fields on the submission form": "enableAdditionalFieldsSetting \u2192 the host renders the additional-fields editor",
+      "participant identity (name / emoji / team)": "enableAudienceJoinPresentation \u2192 the host runs the QR/join flow and hands you audienceName / audienceEmoji / team. Never prompt for identity yourself",
+      "lobby + Start before a scored round": "enableGameLobby \u2192 the host runs the lobby; gate your round on slideProps.quizStatus, never on presentation.presenting",
+      "moderate submissions before they appear": "enableModerateQuestion \u2192 the host runs its native approval queue. Replaces any per-slide requireApproval toggle",
+      "full-canvas / edge-to-edge layout": "enableFullScreen \u2192 the host hides its title bar and gives the iframe the whole viewport. Must agree with metadata `fullscreenCanvas` and the canvas root"
+    },
+    "enableOnlyWhatYouUse": "Turning a flag on \"just in case\" puts a control in the host editor that does nothing. Enable what the slide type actually consumes.",
+    "exception": "A field is justified when no host setting expresses the concept (how this slide lays out or reveals its own results, its own option list, its mechanic knobs) \u2014 or when the user prompt explicitly asks for a separate field. State which, at the field.",
+    "justificationMarker": "no host setting:",
+    "justificationNote": "When a field genuinely cannot reuse a host setting, write the reason in a comment on (or directly above) the field, starting with the marker \"no host setting:\". The audit reads it and stops asking \u2014 so the rule costs one honest sentence rather than a suppression list, and the reason stays next to the field for the next reader.",
+    "defaultSettingKeys": [
+      "enableQuestionTitle",
+      "enableQuestionDescription",
+      "enableTimeLimit",
+      "enableStopSubmissionSetting",
+      "enableHideResultSetting",
+      "enableQuestionImage",
+      "enableVoteCount",
+      "enableLabelOtherSetting",
+      "enableMultipleSubmission",
+      "enableFullScreen",
+      "enableAudienceJoinPresentation",
+      "enableGameLobby",
+      "enableModerateQuestion"
+    ],
+    "optInOnlyKeys": [
+      "enableFilteringProfanitySetting",
+      "enableImageSubmissionSetting",
+      "enableShowVotingResultsOnAudienceVisible",
+      "enableVotesPerParticipantSetting",
+      "enableAdditionalFieldsSetting"
+    ],
+    "emissionNote": "defaultSettings() in scripts/generate-slide-types-api.mjs declares the keys in defaultSettingKeys as false and then spreads the OVERRIDES entry over them. So a key from optInOnlyKeys still reaches the manifest when you set it \u2014 it is simply absent (rather than false) on slides that do not. Setting any flag from either list works the same way.",
+    "spellingTrap": "The close-submissions flag exists in TWO spellings and the manifest emits both: defaultSettings() declares enableStopSubmissionSetting (single s) as false, while every working slide sets enableStopSubmitssionSetting (doubled s) in OVERRIDES \u2014 that doubled-s form is the production spelling the host actually reads. Setting the single-s key to true does nothing. Copy the doubled-s form verbatim.",
+    "iframePreloadNote": "Iframe preload is host-side. reuse-host-capabilities lists enableIframePreload, while sample-slide/types.ts records \"no direct enable* key\" for it \u2014 the two disagree, so verify against the host before relying on the flag."
+  },
+  "settingsLibrary": {
+    "rule": "Composed, reusable settings controls live in src/iframe/settings and are imported from '@/iframe/settings'. They are COMPOSITIONS over the themed Ant primitives (and a couple of shapes Ant has no built-in for), not replacements: a plain <Input>/<Switch>/<Select> already carries the storybook look, so use those directly. Reach for a library component when you need the composed LAYOUT, a specific repeatable pattern, or a shape Ant lacks. All are pure Vue + Ant (no cross-slide-type imports), so they stay production-portable like the rest of @/iframe/*.",
+    "importFrom": "@/iframe/settings",
+    "location": "src/iframe/settings",
+    "governance": "A component earns a place here only if it composes primitives or enforces a guardrail. Plain pass-throughs stay documented conventions, not wrappers.",
+    "components": {
+      "SectionHeader": "Bold (700, host-measured) header of a group or a master-toggle row; optional (?) tooltip + right-aligned action slot.",
+      "SettingRow": "One standalone control with a 400-weight label (single controls are never bold); inline (label left / control right) or stack (control full-width below); optional (?) tooltip and help line.",
+      "SubSettingGroup": "Indent-only (mt-4 pl-4, no left rail) wrapper for settings that apply only when their parent toggle is on. Parent must be a SectionHeader.",
+      "ModeField": "A labelled field whose input changes with an inline mode switch: label + a small exclusive control (outline RadioButton group — purple border/text when selected, NEVER a solid fill — or Ant Segmented) share the top row; the body renders the slot matching the selected mode and swaps in place. The 'Front label: [Text|Image]' pattern. Enforces that ONLY the active mode's body is rendered, so a hidden mode holds no live control. Slot names must match the option values.",
+      "ImageDropzone": "Standalone full-width image field styled to match the storybook LocalFileUploader (2px dashed grey card on a faint grey fill, lavender hover border + focus ring, a 16px PictureOutlined image icon (the OptionRow/ImageActionButton glyph) in secondary ink #4B4B4B) with empty/loading/filled states; the large-format sibling of ImageActionButton. Filled = the image in a fixed grey display box, fitted (portrait/landscape/smaller all handled via fit=contain by default, never stretched or cropped; fit=cover crops to fill), with a Change / Edit / Delete overlay on hover. Emits intents (select/change/edit/remove, and drop(File)); the slide type runs the HOST modals (openUploadImageModal / openEditImageModal / uploadImage), never a self-built uploader. NOT Ant's a-upload-dragger (which performs the upload). SETTINGS ONLY (the card paints a faint surface).",
+      "OptionRow": "Repeatable option/answer row ported from the Ranking slide: drag handle, optional correct-answer toggle, borderless textarea with hover char-counter, optional image control, floating delete. Image parts toggle via showImage/allowCorrect.",
+      "ImageActionButton": "Per-option image control with every state: empty (add) / loading (spinner while the host modal opens) / thumbnail with hover overlay + Change/Edit/Delete menu. Emits intents; the slide type runs the host modals.",
+      "CountedInput": "Single-line text field with a FOCUS-ONLY character counter, done the safe way: the counter is always in the DOM as a sibling, hidden at rest and revealed via the container's :focus-within, so the AntD Input's DOM never rebuilds on focus and the caret is never dropped. Use this (or OptionRow for lists) for any capped rename/label field — NEVER reactively toggle AntD :show-count on @focus (it remounts the input and breaks click/focus; AHAM-463). Composes inside a SettingRow, which supplies the label; forwards data-testid/aria-* to the native input.",
+      "CardSelect": "Single-select as an icon+label card grid \u2014 the one selection shape Ant has no built-in for. Ported from budget-allocation-v2's chart picker.",
+      "NumberWithUnit": "Number (native digit input with a hover-revealed ▲/▼ stepper that steps by `step` and clamps to min/max; hard-capped at `maxDigits` digits — default 4, a 5th keystroke/paste is ignored) + unit-written-in-full + optional `errorMessage` reason line below the field + optional quick-preset select, at an 8px corner. For durations/numbers-with-a-unit, not a Segmented. Reuse the host countdown (enableTimeLimit) when the concept is a standard time limit.",
+      "HelpTooltip": "The trailing (?) info affordance on a label: Ant Tooltip + question-mark icon, copy capped to ~2 lines.",
+      "DropdownMenu": "Themed action menu (<a-dropdown> + <a-menu>) with neutral-grey item hover; used for the image Change/Edit/Delete menu and any Improve-style action menu.",
+      "InfoBox": "Callout/notice box (information/success/warning/error), optionally closable with localStorage-persisted dismissal. Replicates the storybook InfoBox (bespoke, not Ant Alert). SETTINGS ONLY \u2014 it paints a tinted background, which is fine in the host editor chrome but not on Canvas/Audience.",
+      "QuestionList": "Editable list of collapsible questions (Ant Collapse), each with a prompt field (SectionHeader + Input) and answer choices rendered as OptionRow (correct toggle, optional image). Per-question delete is a tertiary icon button with a capped, iframe-safe tooltip. v-model the questions array; single/multiple/none correct modes; image picking emitted as an intent.",
+      "NumberedItem": "A repeatable, numbered SECTION wrapper for a settings list whose items are COMPOSITES - each holds a body of fields and/or a nested option list plus its own delete, not a single value. Owns only the muted grey number chip (sequence identity), the '<Label> N' header, a TERTIARY (type=text, borderless, non-danger) delete shown on hover of the whole item (drop it entirely with deletable=false), and the secondary-fill grey container that wraps the WHOLE item - chip, label, delete and body together (variant 'contained' default; 'plain' = no fill, for single-field items). The body is a DEFAULT SLOT - compose OptionRow/ModeField/any Ant control inside; it never rebuilds them. USE when the creator builds a countable set of composite items whose ordinal they refer to (Question, Blank, Card, Hotspot, Round). DON'T use for a flat list of single values (that is OptionRow directly, numbered ONLY per SETTINGS-39), for a one-off object (just its fields), or for a collapsible numbered question+choices accordion (that is QuestionList, which composes this)."
+    },
+    "conventions": {
+      "note": "These stay plain Ant, documented here rather than wrapped.",
+      "segmented": "Not part of the rulebook \u2014 raw <a-segmented> (unstyled Ant) if a slide ever needs it; no guidance, no wrapper.",
+      "radioGroup": "2\u20134 exclusive modes as buttons: <RadioGroup button-style=\"outline\"> + <RadioButton> (purple border + text on the selected button, NO solid fill). Outline is the Ant default; the solid fill is retired.",
+      "radioDot": "A choose-1 list where each option needs describing: dot <a-radio>. Themed to the native aha-radio look (grey ring #B4BCCF, purple-40 dot #A96FF0, 3px halo) via storybook-overrides.css GAP 7 \u2014 no wrapper component."
+    }
+  },
+  "settingsRulebook": {
+    "rule": "Canonical patterns for the recurring settings across all slide types, from a source survey (not memory). The repo-specific source of truth the settings build guidance, the aha-design-settings-judge Part A, and the audit lints all read. Cross-product UX laws (help-text discipline, noun-phrase names, group size, dangerous actions) are NOT duplicated here \u2014 they live in the aha-design-settings plugin skill; this section owns only the repo-specific choices.",
+    "compose": "Every field composes a library component (SectionHeader / SettingRow / OptionRow / QuestionList / NumberWithUnit / InfoBox / DropdownMenu) \u2014 never hand-rolled markup.",
+    "labelAnatomy": {
+      "leadingIcon": false,
+      "leadingIconNote": "Setting labels carry NO decorative leading icon (star/trophy/clock/etc.) \u2014 a label is text + optional (?) tooltip + control. Enforced by construction (SectionHeader/SettingRow expose no icon slot) and by the decorative-icon audit lint.",
+      "help": "Default a label's explanation to the (?) tooltip. An inline help line appears ONLY when the slide creator explicitly asks for one."
+    },
+    "controls": {
+      "radioGroup": "2\u20134 exclusive modes \u2192 <RadioGroup button-style=\"outline\"> + <RadioButton>. Outline (purple border+text, no solid fill) is the default; solid is retired.",
+      "segmented": "Not in the rulebook \u2014 raw <a-segmented> if ever needed; no guidance.",
+      "number": "A bare number \u2192 <InputNumber>. A number WITH a unit (duration, points) \u2192 <NumberWithUnit>; the unit is set by the plugin (default 'seconds' for time, 'points' for scoring) and only changes when the creator explicitly asks.",
+      "optionList": "A repeatable option/answer list \u2192 <OptionRow> (flat) or <QuestionList> (question groups) \u2014 never a hand-rolled row. min 2, drag-reorder on, correct-answer toggle on for scored slides."
+    },
+    "recurringSettings": {
+      "note": "For each recurring setting: host-native (reuse the enable* flag, never rebuild) vs plugin field, and the canonical control.",
+      "timeLimit": "Whole-slide countdown \u2192 host-native (enableTimeLimit, read slideProps.timeToAnswer). A per-round / per-question / game timer the host flag cannot express \u2192 plugin field via <NumberWithUnit> (unit flexible). Label 'Time limit' + (?) tooltip.",
+      "scoring": "Group Points + Faster-answers + Leaderboard under one 'Scoring' SectionHeader. Points \u2192 <NumberWithUnit> unit 'points'; the field schema follows the slide's own rule (do NOT force a rigid min/max), but consolidate field names when the same concept is spelled differently and it does not affect the user. Faster-answers (speedBonus) \u2192 SettingRow + Switch. Leaderboard \u2192 a plugin toggle shown in the Scoring section when the slide has scoring.",
+      "options": "See controls.optionList.",
+      "numberedItems": "A countable set of COMPOSITE items the creator refers to by ordinal (Blank 1, Card 2, Round 3) \u2014 each item a body of fields and/or its own option list \u2014 wraps each item in <NumberedItem> (muted grey chip + '<Label> N' header + tertiary type=text delete + secondary-fill grey container). Per SETTINGS-39: a GROUP of composite items gets numbered this way; a plain unordered list of single values does NOT get numbers \u2014 that is <OptionRow> directly. Compose the item body into NumberedItem's default slot; never rebuild the chip/header/delete per slide type.",
+      "sound": "Audio tied to the question is host-owned; a standalone per-slide sound toggle \u2192 plugin (SettingRow + Switch)."
+    },
+    "decorativeIconDenylist": [
+      "StarOutlined",
+      "StarFilled",
+      "TrophyOutlined",
+      "TrophyFilled",
+      "ClockCircleOutlined",
+      "FieldTimeOutlined",
+      "ThunderboltOutlined",
+      "ThunderboltFilled",
+      "FireOutlined",
+      "FireFilled",
+      "CrownOutlined",
+      "CrownFilled",
+      "GiftOutlined",
+      "RocketOutlined",
+      "BulbOutlined",
+      "HeartOutlined",
+      "HeartFilled",
+      "SmileOutlined"
+    ],
+    "decorativeIconNote": "The audit warns when a Settings.vue imports one of these as a leading label icon. Functional icons that live INSIDE the library components (Plus/Delete/Info/Question/Picture/Holder) are fine and not listed.",
+    "grandfather": "These rules apply to NEW / rebuilt slide types. The existing slide types predate the rulebook (e.g. all use button-style=\"solid\"); they are grandfathered and migrate opportunistically \u2014 the lints WARN, they do not fail the build.",
+    "crossProductUX": "For noun-phrase naming, help-text discipline, tooltip constraints, group size/header, no-mixed-toggle, dependent sub-settings, plan-gating and dangerous-action patterns, see the aha-design-settings plugin skill (and aha-design-settings-judge Part B) \u2014 this repo does not restate them."
+  }
+}

@@ -66,6 +66,28 @@ explicitly asks.
 - The **preload gate** (`App.vue` + `usePreloadActive`) must stay: don't render/consume data
   until the host flips `xprops.active` to true.
 
+## Settings component library
+
+Build the **Settings** surface from the composed controls in **`@/iframe/settings`**
+(copied from slide-type-creator) rather than hand-rolling inputs — this is what the
+`aha-design-settings` skill's patterns map to:
+
+- Layout: `SectionHeader`, `SettingRow`, `SubSettingGroup`
+- Controls: `OptionRow`, `CardSelect`, `ModeField`, `CountedInput`, `CountedTextarea`,
+  `NumberWithUnit`, `NumberedItem`, `QuestionList`, `DropdownMenu`
+- Helpers: `HelpTooltip` (the `?` help glyph, never `ⓘ`), `InfoBox`, `ImageDropzone`,
+  `ImageActionButton`
+
+```ts
+import { SettingRow, SectionHeader, OptionRow, CountedTextarea } from '@/iframe/settings'
+```
+
+They are compositions over themed Ant primitives — a plain `<a-input>` / `<a-switch>` /
+`<a-select>` already carries the AhaSlides look, so use those directly and reach for a
+library component only for the composed layout or a shape Ant lacks. Class-string / spacing
+tokens live in **`@/iframe/uiStandard`** (backed by `src/iframe/ui-standard.json`) — import
+them instead of retyping utility strings.
+
 ## manifest.json schema (per slide type)
 
 `public/manifest.json` is an array of these. `<type>` = the folder slug; URLs are paths the
