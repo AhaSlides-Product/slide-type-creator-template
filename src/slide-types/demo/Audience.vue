@@ -1,22 +1,28 @@
 <script setup lang="ts">
-// Audience surface — what a participant sees/interacts with on their device.
-// Design the participant UI per `aha-design-audience`.
-import { computed, ref } from 'vue'
-import { useAudiencePlugin } from '@aha/ui'
+// Audience — renders the demo greeting and (when enabled) the preset answers as
+// tappable buttons that submit via the SDK.
+import { computed, onMounted, ref } from 'vue'
+import { useAudiencePlugin, useSync } from '@aha/ui'
 import { ApiClient, SlideType } from '@aha/api'
-import { SubmissionType, SubmissionSenderType } from '@aha/common'
+import { SubmissionSenderType, SubmissionType } from '@aha/common'
+import type { DemoConfig } from './config'
+import { DEMO_CONFIG_KEY, createDefaultDemoConfig, migrateDemoConfig } from './config'
 
 const plugin: any = useAudiencePlugin()
-const attrs = computed<any>(() => plugin.slideAttributesProps?.value ?? {})
-const audienceName = computed(() => plugin.audienceName?.value ?? 'guest')
+const slideId = computed(() => Number(plugin.slideProps?.value?.id ?? 0))
+const channel = computed(() => `${DEMO_CONFIG_KEY}/s${slideId.value}`)
+const config = useSync<DemoConfig>(channel, createDefaultDemoConfig())
 
-const text = ref('')
-const sending = ref(false)
+onMounted(() => {
+  const persisted = plugin.slideAttributesProps?.value?.[DEMO_CONFIG_KEY]
+  if (persisted) config.value = migrateDemoConfig(persisted)
+})
 
-async function submit() {
+const sending = ref('')
+async function submit(label: string) {
   const slideProps = plugin.slideProps?.value ?? {}
   const presentationProps = plugin.presentationProps?.value ?? {}
-  sending.value = true
+  sending.value = label
   try {
     const client = new ApiClient(plugin.baseUrl?.value)
     await client.sendLiveSubmission(SlideType.SampleSlide, {
@@ -26,34 +32,35 @@ async function submit() {
       type: SubmissionType.Response,
       senderId: String(plugin.audienceId?.value ?? ''),
       senderType: SubmissionSenderType.Audience,
-      attributes: { text: text.value },
+      attributes: { text: label },
     } as any)
     plugin.showToastSuccess?.('Sent!')
-    text.value = ''
   } catch {
     plugin.showToastError?.('Failed to send')
   } finally {
-    sending.value = false
+    sending.value = ''
   }
 }
 </script>
 
 <template>
-  <div class="audience-page p-4" data-testid="audience-root">
-    <h2 class="text-lg font-semibold">{{ attrs.greeting || 'Respond' }}</h2>
-    <p class="text-sm opacity-60 mb-3">joined as {{ audienceName }}</p>
+  <div class="audience-page p-6 text-center" data-testid="audience-root">
+    <h2 class="mb-1 text-xl font-semibold">{{ config.greeting }}</h2>
+    <p v-if="config.description" class="mb-4 text-sm opacity-60">{{ config.description }}</p>
 
-    <a-textarea v-model:value="text" :rows="3" placeholder="Type your response…" data-testid="audience-input" />
-    <a-button
-      type="primary"
-      class="mt-3"
-      name="audience_submit"
-      v-aha-emit-action
-      :loading="sending"
-      @click="submit"
-      data-testid="audience-submit"
-    >
-      Submit
-    </a-button>
+    <div v-if="config.collectResponses" class="mt-2 flex flex-col gap-2">
+      <a-button
+        v-for="opt in config.options"
+        :key="opt.id"
+        type="primary"
+        size="large"
+        :loading="sending === opt.label"
+        :data-testid="`demo-answer-${opt.id}`"
+        @click="submit(opt.label)"
+      >
+        {{ opt.label || '—' }}
+      </a-button>
+    </div>
+    <p v-else class="text-sm opacity-60">Enjoy the slide!</p>
   </div>
 </template>
