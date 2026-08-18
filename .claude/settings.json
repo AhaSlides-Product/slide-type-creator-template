@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "aha-design-public": {
+      "source": {
+        "source": "github",
+        "repo": "AhaSlides-Product/aha-design-public"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "aha-design@aha-design-public": true
+  }
+}

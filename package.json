@@ -1,0 +1,28 @@
+{
+  "name": "aha-slide-types-public",
+  "private": false,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "PUBLIC slide-plugin frontend skeleton for AhaSlides. Token-free: Vite + Vue 3 + Ant Design Vue with the three host surfaces (Canvas / Settings / Audience). The private @aha/* SDK is intentionally NOT bundled — wire it in when you have registry access.",
+  "packageManager": "npm@10.9.5",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "type-check": "vue-tsc --noEmit"
+  },
+  "dependencies": {
+    "@ant-design/icons-vue": "^7.0.0",
+    "ant-design-vue": "4.2.6",
+    "vue": "^3.5.24",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^24.10.1",
+    "@vitejs/plugin-vue": "^6.0.7",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.3",
+    "vue-tsc": "^3.1.4"
+  }
+}
