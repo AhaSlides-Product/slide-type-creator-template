@@ -1,20 +1,18 @@
 # aha-slide-types-public
 
-A PUBLIC **slide-plugin frontend skeleton** for AhaSlides. It has the three host
-surfaces a slide plugin runs in — **Canvas / Settings / Audience** — as three
-routes, plus the `aha-design` skills plugin pre-wired. Modeled on the canonical
-`aha-slide-plugin/apps/sample-slide` template.
+A PUBLIC **slide-plugin frontend** for AhaSlides. It runs inside the AhaSlides host
+as three iframe surfaces — **Canvas / Settings / Audience** — using the shared
+`@aha/*` SDK, and has the public `aha-design` skills plugin pre-wired. Modeled on the
+canonical `aha-slide-plugin/apps/sample-slide` template.
 
-> **Token-free by design.** This repo installs with **only public packages** —
-> no `.npmrc`, no `GH_TOKEN`. The private `@aha/*` SDK (`@ahaslides-product/plugins-*`,
-> on GitHub Packages) is **intentionally not a dependency here**, because it can't be
-> installed without registry access. Wire it in later when you have that access
-> (see "Adding the SDK" below).
+> **Token-free install.** No `.npmrc`, no `GH_TOKEN`, no npmjs. The `@aha/*` SDK is
+> pulled from **public GitHub Release tarballs** of `aha-slide-plugin` (asset URLs in
+> `package.json`), which download with no auth. Everything else is public npm.
 
 ## Setup
 
 ```bash
-npm install        # public deps only — no token needed
+npm install        # public deps + @aha/* tarballs — no token needed
 cp .env.example .env
 npm run dev
 ```
@@ -23,41 +21,45 @@ npm run dev
 
 ```
 src/
-  main.ts                  # Vue + Ant Design Vue + router (no SDK imports)
-  App.vue                  # <router-view>
+  main.ts                  # Vue + Antd + @aha/ui CSS + zoid bridge + emitAction
+  App.vue                  # a-config-provider(theme) + preload gate
   router/index.ts          # /:type/{canvas,settings,audience}/:slideId
-  pages/Canvas|Settings|Audience.vue
-  composables/useXProps.ts # raw reactive window.xprops from the host (SDK-free)
-vite.config.ts             # vue + tailwind v4 + /api dev proxy
+  pages/Canvas|Settings|Audience.vue   # real surfaces via usePresenterPlugin / useAudiencePlugin
+  composables/usePreload.ts, useSlideImage.ts, useXProps.ts
+vite.config.ts             # vue + tailwind v4 + @aha/ui icon plugin + /api dev proxy
 ```
 
-The three routes match how the AhaSlides host mounts a plugin in iframes
-(`/:type/canvas/:slideId`, `/:type/settings/:slideId`, `/:type/audience/:slideId`).
+The three routes match how the host mounts the plugin in iframes. A setting is a
+`useSync` ref (instant across surfaces) persisted with `upsertSlideAttributeAction`;
+audience responses go through `ApiClient.sendLiveSubmission`.
+
+## The @aha/* SDK (token-free, via GitHub Releases)
+
+`package.json` depends on the SDK by tarball URL, e.g.:
+
+```
+"@aha/ui": "https://github.com/AhaSlides-Product/aha-slide-plugin/releases/download/sdk-latest/aha-ui.tgz"
+```
+
+All six are listed (`common, api, db, ui` + transitive `design, ui-vanilla`) so npm
+satisfies each tarball's internal `"@aha/*": "*"` deps by dedup. `unplugin-icons` is a
+devDep required by the `@aha/ui` vite icon plugin.
+
+**Updating the SDK:** the tarballs are produced by the `release-sdk-tarballs` workflow
+in `aha-slide-plugin` (runs on every push to its default branch).
+- **Always-latest:** the URLs above point at the moving `sdk-latest` release — re-run
+  `npm install` (bump the lockfile) to pull the newest build.
+- **Pinned/reproducible:** point at a versioned tag/asset instead, e.g.
+  `.../download/sdk-v2026.08.18/aha-ui-1.6.0.tgz`, and bump when you want the update.
 
 ## Design skills (aha-design)
 
 `.claude/settings.json` enables the **`aha-design`** plugin from the public
-`AhaSlides-Product/aha-design-public` marketplace, so agents working in this repo
-get the design-system skills (antd, settings UX, canvas/iframe, audience,
-typography, tables, overlays, paywall, feedback, status badges) automatically.
-
-## Adding the SDK later (`@aha/*`)
-
-To make this a real, host-integrated plugin you need the private SDK. Two paths:
-
-1. **With registry access** — restore `.npmrc` (`@ahaslides-product:registry` +
-   `GH_TOKEN`), add the deps back
-   (`@ahaslides-product/plugins-{ui,api,common,db}`), re-add the `@aha/*` aliases
-   in `vite.config.ts` / `tsconfig.json`, and re-import the zoid bridge + hooks in
-   `main.ts` / pages (copy from `aha-slide-plugin/apps/sample-slide/frontend`).
-2. **Inside the monorepo** — develop as a workspace app under
-   `aha-slide-plugin/apps/*` (deps `@aha/*: "*"`), which resolves the SDK locally
-   with no token.
+`AhaSlides-Product/aha-design-public` marketplace, so design-system skills (antd,
+settings UX, canvas/iframe, audience, typography, …) load for agents in this repo.
 
 ## Public-repo guardrails
 
-- Never commit secrets. There is no token in this repo by design.
-- If you add the SDK back with a token, keep `GH_TOKEN` in env / CI secrets only —
-  never commit it.
+- No secrets are committed; installing needs no token by design.
 - The shipped bundle exposes frontend code (normal) → every `/api/*` endpoint must
   enforce auth server-side.
