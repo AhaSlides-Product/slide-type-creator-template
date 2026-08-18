@@ -13,8 +13,11 @@ here and in the real product.
   folder is a new slide type with **no router edit**. `demo/` is the reference template.
 - **Public declaration.** `public/manifest.json` is the list of slide types this deploy
   offers (served at `<domain>/manifest.json`) — see the schema below.
-- **Design skills.** `.claude/settings.json` enables the public `aha-design` plugin;
-  use `aha-design-canvas` / `aha-design-audience` / `aha-design-settings` when building UI.
+- **Design skills.** `.claude/settings.json` enables the public `aha-design` plugin.
+  Per-surface rules in `.claude/rules/slide-types/{canvas,settings,audience}.md` fire
+  automatically when you edit that surface — each says which `aha-design-*` skill to load,
+  which `@/iframe/settings` components to use, and the transparent-surface / deck-theme-ink /
+  reuse-host-capabilities invariants (mirrors how slide-type-creator wires aha-design).
 
 ## Creating a slide type from a prompt
 
