@@ -6,11 +6,12 @@ import { usePresenterPlugin, useSync } from '@aha/ui'
 import { useSlideImage } from '@/composables/useSlideImage'
 
 const route = useRoute()
-const slideId = computed(() => String(route.params.slideId ?? ''))
 
 // Host bridge (typed hooks; kept loose here for the skeleton).
 const plugin: any = usePresenterPlugin()
 const slideProps = computed<any>(() => plugin.slideProps?.value ?? {})
+// Prefer the id the host passes via xprops; fall back to the URL for dev links.
+const slideId = computed(() => String(slideProps.value?.id ?? route.params.slideId ?? ''))
 
 // Shared config written by the Settings surface (same-browser BroadcastChannel).
 const greeting = useSync<string>(computed(() => `greeting-${slideId.value}`), '')
