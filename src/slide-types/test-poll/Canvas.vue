@@ -5,7 +5,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { usePresenterPlugin, useSync } from '@aha/ui'
 import { ApiClient } from '@aha/api'
 import type { PollConfig } from './config'
-import { POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
+import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
 const plugin: any = usePresenterPlugin()
 const slideProps = computed(() => plugin.slideProps?.value ?? {})
@@ -31,23 +31,36 @@ onMounted(async () => {
 // handler (unlike subscribeTopic) — each audience vote is a stored submission
 // carrying { optionIds }. Deduped by sender so a re-vote doesn't double-count.
 let pollTimer: ReturnType<typeof setInterval> | null = null
+// Read the option ids out of a submission regardless of exact envelope shape.
+function optionIdsOf(s: any): string[] {
+  const a = s?.attributes ?? s?.data ?? s ?? {}
+  if (Array.isArray(a.optionIds)) return a.optionIds.map(String)
+  if (Array.isArray(a.vote)) return a.vote.map(String)
+  if (a.optionId != null) return [String(a.optionId)]
+  return []
+}
 async function pollVotes() {
-  const baseUrl = plugin.baseUrl?.value
+  const baseUrl = plugin.baseUrl?.value || API_BASE
   if (!baseUrl || !slideId.value) return
   try {
     const client = new ApiClient(baseUrl, plugin.accessToken?.value)
-    const subs = await client.getSubmissions({ slideId: slideId.value, slideVersion: slideProps.value?.version })
+    // No slideVersion filter — count every submission for the slide (avoids a
+    // version mismatch silently dropping votes).
+    const subs = await client.getSubmissions({ slideId: slideId.value })
     const bySender = new Map<string, string[]>()
     for (const s of (subs || []) as any[]) {
-      const ids = s?.attributes?.optionIds
-      if (Array.isArray(ids)) bySender.set(String(s.senderId ?? s.id), ids)
+      const ids = optionIdsOf(s)
+      if (ids.length) bySender.set(String(s.senderId ?? s.id), ids)
     }
     const tally: Record<string, number> = {}
     for (const ids of bySender.values()) ids.forEach((id) => { tally[id] = (tally[id] || 0) + 1 })
     serverVotes.value = tally
     hasServer.value = true
-  } catch {
-    // best-effort; keep the last tally
+    // eslint-disable-next-line no-console
+    console.debug('[test-poll] getSubmissions', { slideId: slideId.value, count: (subs || []).length, tally })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.debug('[test-poll] getSubmissions failed', e)
   }
 }
 onMounted(() => {

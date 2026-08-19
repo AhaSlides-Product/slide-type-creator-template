@@ -7,7 +7,7 @@ import { useAudiencePlugin, useSync } from '@aha/ui'
 import { ApiClient, SlideType } from '@aha/api'
 import { SubmissionSenderType, SubmissionType } from '@aha/common'
 import type { PollConfig } from './config'
-import { POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
+import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
 const plugin: any = useAudiencePlugin()
 const slideProps = computed(() => plugin.slideProps?.value ?? {})
@@ -61,8 +61,9 @@ async function submit() {
   ids.forEach((id) => { nextVotes[id] = (nextVotes[id] || 0) + 1 })
   votes.value = nextVotes
 
-  const baseUrl = plugin.baseUrl?.value
-  // Standalone dev (no host): local tally only — there is no server to submit to.
+  // Prefer the host-injected baseUrl; fall back to the staging default.
+  const baseUrl = plugin.baseUrl?.value || API_BASE
+  // Truly standalone (no id at all): local tally only.
   if (!baseUrl) { sending.value = false; return }
 
   try {

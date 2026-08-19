@@ -7,6 +7,12 @@ import { nanoid } from 'nanoid'
 // description / image). This config holds only the answer options + poll behaviour.
 export const POLL_CONFIG_KEY = 'test-poll-config'
 
+// API base for reading/writing submissions. The host normally injects `baseUrl`
+// into the plugin (usePresenterPlugin/useAudiencePlugin `.baseUrl`); this is the
+// fallback when it doesn't — defaults to STAGING, overridable with VITE_AHA_API_BASE.
+export const API_BASE = (import.meta as any).env?.VITE_AHA_API_BASE
+  || 'https://audience.dev.ahaslide.com'
+
 export const MIN_OPTIONS = 2
 export const MAX_OPTIONS = 10
 
