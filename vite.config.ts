@@ -12,12 +12,12 @@ const DEV_API_TARGET = 'https://aha-slide-types-creator.pages.dev'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  // HTTPS is needed when the plugin is loaded as an iframe by an HTTPS host (the
-  // presenter/audience apps) — an http://localhost iframe is mixed-content-blocked.
-  // Opt in with `HTTPS=true` (npm run dev:https). Self-signed via basic-ssl:
-  // accept the cert once at https://localhost:5173 (or use a CORS/security-off
-  // Chrome). For a zero-warning cert, generate one with mkcert instead.
-  const useHttps = env.HTTPS === 'true'
+  // HTTPS is the DEFAULT: the plugin loads as an iframe inside HTTPS hosts (the
+  // presenter/audience apps), and an http://localhost iframe is mixed-content-
+  // blocked. Self-signed via basic-ssl — accept the cert once at
+  // https://localhost:5173 (or use a CORS/security-off Chrome); for a zero-warning
+  // cert, use mkcert. Opt out with `HTTPS=false` (npm run dev:http).
+  const useHttps = env.HTTPS !== 'false'
   return {
     base: env.VITE_BASE_PATH || '/',
     plugins: [vue(), tailwindcss(), ahaViteIconPlugin, ...(useHttps ? [basicSsl()] : [])],
