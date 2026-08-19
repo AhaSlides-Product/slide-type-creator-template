@@ -69,7 +69,7 @@ async function submit() {
   try {
     const sp = slideProps.value
     const pp = plugin.presentationProps?.value ?? {}
-    const client = new ApiClient(baseUrl, plugin.accessToken?.value)
+    const client = new ApiClient(baseUrl, plugin.accessToken)
     await client.sendLiveSubmission(SlideType.SampleSlide, {
       presentationId: pp.id,
       slideId: sp.id,

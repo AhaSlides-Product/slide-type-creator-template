@@ -43,7 +43,8 @@ async function pollVotes() {
   const baseUrl = plugin.baseUrl?.value || API_BASE
   if (!baseUrl || !slideId.value) return
   try {
-    const client = new ApiClient(baseUrl, plugin.accessToken?.value)
+    // accessToken is a PLAIN string on the plugin (not a ref) — no `.value`.
+    const client = new ApiClient(baseUrl, plugin.accessToken)
     // No slideVersion filter — count every submission for the slide (avoids a
     // version mismatch silently dropping votes).
     const subs = await client.getSubmissions({ slideId: slideId.value })
