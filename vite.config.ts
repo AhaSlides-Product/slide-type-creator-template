@@ -30,6 +30,10 @@ export default defineConfig(({ mode }) => {
       host: 'localhost',
       port: Number(env.PORT) || 5173,
       strictPort: false,
+      // The presenter/audience apps (another origin) fetch this dev server's
+      // manifest.json + load its surfaces in an iframe, so reflect the requesting
+      // origin on every response. Dev-only; a local dev server serving a plugin.
+      cors: { origin: true, credentials: true },
       proxy: {
         '/api': { target: env.VITE_API_BASE || DEV_API_TARGET, changeOrigin: true, secure: true },
       },
