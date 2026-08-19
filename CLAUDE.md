@@ -24,6 +24,13 @@ here and in the real product.
   code. The per-type **`config.ts`** is only the slide's own **data model** (option/layout
   shape + defaults, synced via `useSync`). Turning a host title/timer on is a manifest edit;
   adding a slide-specific field is a `config.ts` + control edit.
+- **Data & runtime skill.** Before wiring live data (counts/votes/submissions), the submit
+  flow, cross-surface sync, or testing against the real host, load
+  `.claude/skills/slide-type-data-and-runtime` — it encodes the SDK Ref-vs-plain field
+  contract (`accessToken` is a plain string; `baseUrl`/`slideProps` are Refs), the
+  getSubmissions-poll vs counting-handler options, optimistic-write + stable-id rules, and
+  the HTTPS/CORS/cert setup. It exists because each of those, done wrong, produced a silent
+  zero-count chart with no on-screen error.
 
 ## Creating a slide type from a prompt
 
