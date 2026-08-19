@@ -14,10 +14,16 @@ here and in the real product.
 - **Public declaration.** `public/manifest.json` is the list of slide types this deploy
   offers (served at `<domain>/manifest.json`) — see the schema below.
 - **Design skills.** `.claude/settings.json` enables the public `aha-design` plugin.
-  Per-surface rules in `.claude/rules/slide-types/{canvas,settings,audience}.md` fire
-  automatically when you edit that surface — each says which `aha-design-*` skill to load,
+  Per-surface rules in `.claude/rules/slide-types/{canvas,settings,audience,handler,manifest}.md`
+  fire automatically when you edit that file — each says which `aha-design-*` skill to load,
   which `@/iframe/settings` components to use, and the transparent-surface / deck-theme-ink /
-  reuse-host-capabilities invariants (mirrors how slide-type-creator wires aha-design).
+  reuse-host-capabilities / submission-lock / quiz-lobby invariants (mirrors how
+  slide-type-creator wires aha-design, adapted to this repo's SDK + manifest).
+- **Config vs data model.** A slide type's **config** — its host registration (`ahaConfig`)
+  and the `setting.enable*` feature opt-ins — lives in **`public/manifest.json`**, not in
+  code. The per-type **`config.ts`** is only the slide's own **data model** (option/layout
+  shape + defaults, synced via `useSync`). Turning a host title/timer on is a manifest edit;
+  adding a slide-specific field is a `config.ts` + control edit.
 
 ## Creating a slide type from a prompt
 

@@ -32,7 +32,26 @@ never heard of.
   `presentation.fontFamily`). A slide type never invents colour except a fallback, a
   semantic signal, or a prompt-requested colour noted in a comment. (`slide.baseColour` is
   presenter-only and never reaches this iframe.)
-- **Reuse host capabilities** (join, timer, typing indicator) via the SDK +
-  `ahaConfig.setting.enable*` flags — don't rebuild them.
+- **The submission lock is optimistic, and it ROLLS BACK.** Write the lock on tap so the
+  phone confirms instantly, then **release it if `sendLiveSubmission` rejects** and say so
+  on screen. A lock written before the request resolves and never undone is worse than no
+  lock: it is durable by design (it survives a remount), so one dropped request on
+  conference wifi leaves that participant permanently "submitted" for a vote no handler
+  counted. A `.catch` that only `console.error`s is not error handling — the participant
+  can't open that console. **Only the server call may trigger the rollback:**
+  `saveSubmission` is a local IndexedDB mirror that fails on its own terms (private mode,
+  quota) — give it its OWN catch, or its rejection un-locks a vote the handler already
+  counted and hands that participant a second ballot.
+- **Reuse host capabilities** (join, timer, typing indicator, image upload, identity) via
+  the SDK + `ahaConfig.setting.enable*` flags in `public/manifest.json` — don't rebuild them
+  or prompt for a name/run your own timer.
+- **Quiz lobby (scored slides only): gate on `quizStatus`, show a waiting screen.** For a
+  scored/quiz slide the presenter holds everyone in a lobby until they hit Start.
+  `quizStatus` rides on the slide prop — derive
+  `const quizStatus = computed(() => slideProps.value?.quizStatus)`, compute
+  `inLobby = quizStatus === QuizStatus.Lobby`, and while `inLobby` render a "waiting for the
+  host" screen with `v-if="!inLobby"` on the question, options, timer AND submit — hiding
+  only the timer lets phones answer before Start. `undefined` = no lobby ⇒ show the question
+  (fail-open). Keep it a `computed` (it changes live), never a mount-time read.
 
 Self-check the finished audience view with **`aha-design-audience-judge`**.

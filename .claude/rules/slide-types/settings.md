@@ -18,6 +18,15 @@ Build from the composed controls in **`@/iframe/settings`** — don't hand-roll 
 tokens come from **`@/iframe/uiStandard`** (backed by `src/iframe/ui-standard.json`) —
 import them instead of retyping utility strings.
 
+## Where the config lives — manifest.json, not this file
+
+Which host features a slide type opts into (`setting.enable*`) and how it registers
+(`ahaConfig`: name/type/icon/urls) live in **`public/manifest.json`**, NOT in `Settings.vue`
+and NOT in the per-type `config.ts`. See the `manifest` rule. `config.ts` is only the slide's
+own **data model** (its option/layout shape + defaults), synced via `useSync`. So to turn on
+a host title or timer you flip a flag in `manifest.json`; to add a slide-specific field you
+extend `config.ts` and render a control here.
+
 ## Data
 
 - `usePresenterPlugin({ autoHeight: true })` — pass `autoHeight` **explicitly**; the host
@@ -35,6 +44,13 @@ import them instead of retyping utility strings.
   entry. Turn the flag on and read `slideProps.*` — adding a duplicate `<a-input>` title in
   the panel is a blocking duplication. A new slide-attribute field is the **last resort**:
   (1) host flag → (2) derive from an existing config field → (3) only then a new field.
+- **Enable only what you use.** A `setting.enable*` flag turned on "just in case" puts a
+  dead control in the host editor. Every flag you set in the manifest must map to behaviour
+  the slide actually uses.
+- **Watch the doubled-s trap.** The close-submissions flag is
+  `enableStopSubmitssionSetting` — spelled with a **doubled `ss`** (`...Submitss...`). The
+  correctly-spelled single-s key is a silent no-op. Copy the key from an existing manifest
+  entry rather than retyping it.
 - **Transparent surface.** This panel is an iframe inside the host editor, so the host owns
   the background — paint nothing. Ink is a fixed brand token here (the surface behind it is
   the editor's app chrome, not the deck).
