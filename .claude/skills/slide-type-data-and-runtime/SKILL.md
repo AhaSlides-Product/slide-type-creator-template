@@ -43,12 +43,18 @@ The audience writes a vote with `ApiClient.sendLiveSubmission(SlideType.X, { …
 attributes: { … } })`. The Canvas reads them back in ONE of two ways:
 
 - **No handler (default, simplest):** poll `ApiClient.getSubmissions({ slideId })`
-  on an interval and tally client-side from `submission.attributes`. Verified: a
-  `POST /api/live/submissions` lands in the queryable `GET /api/submissions` store
-  with `attributes` intact. **Do NOT filter by `slideVersion`** — a version
-  mismatch silently drops every vote (a slide edit bumps the version). Dedupe by
-  `senderId` so a re-vote replaces, not double-counts. Parse the attribute shape
-  tolerantly. Downside: ~poll-interval latency.
+  on an interval and tally client-side from `submission.attributes`. **Verified on
+  staging** (`audience.dev.ahaslide.com`): `POST /api/live/submissions` (→ 202)
+  lands in the queryable `GET /api/submissions` store with `attributes.optionIds`
+  intact, so this path works cross-device with NO handler. Rules, each verified:
+    - **Query by `slideId` ONLY — do NOT pass `slideVersion`.** A mismatch returns
+      an empty list (measured: `slideVersion=2` for a v1 submission → `0` items),
+      and a slide edit bumps the version, so filtering silently zeros the chart.
+    - The `type` param does not strictly filter (both `response` and the slide-type
+      string returned the row), so omit it — it can't help and might mislead.
+    - **Dedupe by `senderId`** so a re-vote replaces, not double-counts; then tally
+      `attributes.optionIds`. Parse the attribute shape tolerantly.
+    - Downside: ~poll-interval latency (a couple of seconds), not instant.
 - **With a handler (realtime):** a `handler.ts` (Cloudflare Worker, `handlerUrl`
   in the manifest) maps each submission to `count_total`/per-key events on a
   `getBucket(...)` topic; the Canvas uses `subscribeTopic({ type: 'counting',
