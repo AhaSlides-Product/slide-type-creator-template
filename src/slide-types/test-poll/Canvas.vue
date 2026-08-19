@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Presenter Canvas — the poll question + a live horizontal-bar result per option.
 // Nothing paints a background (the host owns it); ink tracks the deck theme.
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { usePresenterPlugin, useSync } from '@aha/ui'
+import { ApiClient } from '@aha/api'
 import type { PollConfig } from './config'
 import { POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
@@ -13,14 +14,50 @@ const configChannel = computed(() => `${POLL_CONFIG_KEY}/s${slideId.value}`)
 const votesChannel = computed(() => `test-poll-votes/s${slideId.value}`)
 
 const config = useSync<PollConfig>(configChannel, createDefaultPollConfig())
-// { [optionId]: count } — incremented by the audience, read here for the bars.
+// Same-browser dev fallback tally (BroadcastChannel); real counts come from the
+// backend via getSubmissions polling below.
 const votes = useSync<Record<string, number>>(votesChannel, {})
+// { [optionId]: count } tallied from the server — the cross-device source of truth.
+const serverVotes = ref<Record<string, number>>({})
+const hasServer = ref(false)
 
 onMounted(async () => {
   const attrs = await plugin.getSlideAttributesAction?.(slideId.value)
   const persisted = attrs?.[POLL_CONFIG_KEY]
   if (persisted) config.value = migratePollConfig(persisted)
 })
+
+// Poll the backend for votes and tally per option. Works without a counting
+// handler (unlike subscribeTopic) — each audience vote is a stored submission
+// carrying { optionIds }. Deduped by sender so a re-vote doesn't double-count.
+let pollTimer: ReturnType<typeof setInterval> | null = null
+async function pollVotes() {
+  const baseUrl = plugin.baseUrl?.value
+  if (!baseUrl || !slideId.value) return
+  try {
+    const client = new ApiClient(baseUrl, plugin.accessToken?.value)
+    const subs = await client.getSubmissions({ slideId: slideId.value, slideVersion: slideProps.value?.version })
+    const bySender = new Map<string, string[]>()
+    for (const s of (subs || []) as any[]) {
+      const ids = s?.attributes?.optionIds
+      if (Array.isArray(ids)) bySender.set(String(s.senderId ?? s.id), ids)
+    }
+    const tally: Record<string, number> = {}
+    for (const ids of bySender.values()) ids.forEach((id) => { tally[id] = (tally[id] || 0) + 1 })
+    serverVotes.value = tally
+    hasServer.value = true
+  } catch {
+    // best-effort; keep the last tally
+  }
+}
+onMounted(() => {
+  pollVotes()
+  pollTimer = setInterval(pollVotes, 2000)
+})
+onUnmounted(() => { if (pollTimer) clearInterval(pollTimer) })
+
+// Server tally cross-device; the useSync tally is the same-browser dev fallback.
+const tally = computed<Record<string, number>>(() => (hasServer.value ? serverVotes.value : votes.value))
 
 // Host-provided question surface (enabled via the manifest enable* flags).
 const title = computed(() => slideProps.value?.title || '')
@@ -39,9 +76,9 @@ const palette = computed<string[]>(() => {
 })
 const fontFamily = computed(() => plugin.presentationProps?.value?.fontFamily || slideProps.value?.fontFamily || 'inherit')
 
-const total = computed(() => Object.values(votes.value).reduce((a, b) => a + (b || 0), 0))
+const total = computed(() => Object.values(tally.value).reduce((a, b) => a + (b || 0), 0))
 const rows = computed(() => config.value.options.map((opt, i) => {
-  const count = votes.value[opt.id] || 0
+  const count = tally.value[opt.id] || 0
   const pct = total.value > 0 ? Math.round((count / total.value) * 100) : 0
   return { ...opt, count, pct, colour: palette.value[i % palette.value.length] }
 }))

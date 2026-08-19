@@ -31,15 +31,23 @@ export interface PollConfig {
   hasCorrectAnswer: boolean
 }
 
-export const createOption = (label = '', imageUrl = ''): PollOption => ({
-  id: nanoid(6),
+export const createOption = (label = '', imageUrl = '', id = nanoid(6)): PollOption => ({
+  id,
   label,
   imageUrl,
   correct: false,
 })
 
+// STABLE ids for the default options so every surface agrees on them before the
+// useSync config channel converges (with no persisted config — e.g. the standalone
+// dev preview — random ids would diverge and the per-option vote tally wouldn't
+// match). Options the user adds later still get a unique nanoid.
 export const createDefaultPollConfig = (): PollConfig => ({
-  options: [createOption('Option 1'), createOption('Option 2'), createOption('Option 3')],
+  options: [
+    createOption('Option 1', '', 'opt-1'),
+    createOption('Option 2', '', 'opt-2'),
+    createOption('Option 3', '', 'opt-3'),
+  ],
   allowMultiple: false,
   maxVotes: 1,
   hasCorrectAnswer: false,

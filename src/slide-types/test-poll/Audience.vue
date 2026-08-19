@@ -52,13 +52,23 @@ async function submit() {
   if (!ids.length || submitted.value || sending.value) return
   sending.value = true
   errorMsg.value = ''
-  // Optimistic: lock the UI immediately.
+
+  // Optimistic: lock the UI AND bump the local (same-browser) tally now, so the
+  // canvas reflects the vote instantly. Snapshot the tally to roll back on reject.
   submitted.value = true
+  const prevVotes = votes.value
+  const nextVotes = { ...prevVotes }
+  ids.forEach((id) => { nextVotes[id] = (nextVotes[id] || 0) + 1 })
+  votes.value = nextVotes
+
+  const baseUrl = plugin.baseUrl?.value
+  // Standalone dev (no host): local tally only — there is no server to submit to.
+  if (!baseUrl) { sending.value = false; return }
 
   try {
     const sp = slideProps.value
     const pp = plugin.presentationProps?.value ?? {}
-    const client = new ApiClient(plugin.baseUrl?.value)
+    const client = new ApiClient(baseUrl, plugin.accessToken?.value)
     await client.sendLiveSubmission(SlideType.SampleSlide, {
       presentationId: pp.id,
       slideId: sp.id,
@@ -68,13 +78,10 @@ async function submit() {
       senderType: SubmissionSenderType.Audience,
       attributes: { optionIds: ids },
     } as any)
-    // Local live tally for the canvas (same-browser preview + best-effort).
-    const next = { ...votes.value }
-    ids.forEach((id) => { next[id] = (next[id] || 0) + 1 })
-    votes.value = next
   } catch {
-    // ROLL BACK the lock — only the server call unwinds it (no local mirror here).
+    // ROLL BACK both the lock and the optimistic tally — the server never counted it.
     submitted.value = false
+    votes.value = prevVotes
     errorMsg.value = 'Could not submit — tap to try again.'
     plugin.showToastError?.('Failed to submit')
   } finally {

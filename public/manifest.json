@@ -37,7 +37,7 @@
         "enableVoteCount": true,
         "enableLabelOtherSetting": false,
         "enableMultipleSubmission": false,
-        "enableFullScreen": true,
+        "enableFullScreen": false,
         "enableAudienceJoinPresentation": false,
         "enableGameLobby": false,
         "enableModerateQuestion": false,
