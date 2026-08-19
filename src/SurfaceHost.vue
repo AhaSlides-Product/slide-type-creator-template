@@ -2,7 +2,7 @@
 // Dispatches a host surface (Canvas / Settings / Audience) to the component of the
 // slide type named in the route `:type` param. Each slide type lives in
 // `src/slide-types/<type>/{Canvas,Settings,Audience}.vue`; adding a new folder makes
-// a new slide type — no router edit needed. Unknown types fall back to `demo`.
+// a new slide type — no router edit needed. Unknown types fall back to `test-poll`.
 import { computed, defineAsyncComponent } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -13,9 +13,9 @@ const route = useRoute()
 const modules = import.meta.glob('./slide-types/*/*.vue')
 
 const resolved = computed(() => {
-  const type = String(route.params.type ?? 'demo')
+  const type = String(route.params.type ?? 'test-poll')
   const key = `./slide-types/${type}/${props.role}.vue`
-  const fallback = `./slide-types/demo/${props.role}.vue`
+  const fallback = `./slide-types/test-poll/${props.role}.vue`
   const loader = modules[key] ?? modules[fallback]
   return { type, component: defineAsyncComponent(loader as any) }
 })

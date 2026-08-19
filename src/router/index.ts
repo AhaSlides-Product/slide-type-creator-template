@@ -7,7 +7,7 @@ import SurfaceHost from '@/SurfaceHost.vue'
 // SurfaceHost resolves `:type` to src/slide-types/<type>/<role>.vue, so adding a
 // slide-type folder needs no router change.
 const routes = [
-  { path: '/', redirect: `/${import.meta.env.VITE_AHA_DEFAULT_SLIDE ?? 'demo'}/canvas` },
+  { path: '/', redirect: `/${import.meta.env.VITE_AHA_DEFAULT_SLIDE ?? 'test-poll'}/canvas` },
   { path: '/:type/canvas/:slideId?', name: 'Canvas', component: SurfaceHost, props: { role: 'Canvas' } },
   { path: '/:type/settings/:slideId?', name: 'Settings', component: SurfaceHost, props: { role: 'Settings' } },
   { path: '/:type/audience/:slideId?', name: 'Audience', component: SurfaceHost, props: { role: 'Audience' } },
