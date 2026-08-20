@@ -133,6 +133,44 @@ npm run build        # type-check + vite build
 `AhaSlides-Product/aha-design-public` marketplace, so design-system skills (antd,
 settings UX, canvas/iframe, audience, typography) load for agents in this repo.
 
+### Building the UI is not the last step — judging it is
+
+A surface is **not done when it renders**. Every surface you build or restyle must then
+be run through its **judge** skill, every FAIL fixed, and the judge re-run until it
+reads `OK TO SHIP`:
+
+| Surface | Build with | Then judge with |
+| --- | --- | --- |
+| `Canvas.vue` | `aha-design-canvas` | **`aha-design-canvas-judge`** |
+| `Settings.vue` | `aha-design-settings` | **`aha-design-settings-judge`** |
+| `Audience.vue` | `aha-design-audience` | **`aha-design-audience-judge`** |
+
+The judges emit a binary PASS/FAIL per criterion with a `Where / Evidence / Fix` block —
+they exist because reading the build skill and *believing* you complied is not the same
+as checking. Skipping the judge is how a panel ships with a content-width "+ Add", a
+composite item that lost its grey card, or option labels at the wrong type scale: each
+one is a named FAIL in a judge that was never run.
+
+**Judge against `origin/main` of the marketplace, not the local plugin copy.** The
+plugin cache under `~/.claude/plugins/marketplaces/aha-claude-plugins` goes stale — it
+has been observed **hundreds of commits behind**, so a judge run from it silently checks
+last month's rules. Refresh it (`/plugin` in Claude Code) or read the current skill
+straight from git before judging:
+
+```bash
+cd ~/.claude/plugins/marketplaces/aha-claude-plugins && git fetch origin
+git log --oneline HEAD..origin/main -- plugins/aha-design   # what you'd be missing
+git show origin/main:plugins/aha-design/skills/aha-design-settings-judge/SKILL.md
+```
+
+Two habits the judges assume, both learned the hard way:
+
+- **Read the criteria, don't grep them.** Walking `C1…C14` / `SETTINGS-01…-48` finds the
+  failures; grepping for the word you already have in mind finds only that one.
+- **Verify by measuring, not by eye.** "Looks centred" is not evidence. Measure it in
+  the browser (`getBoundingClientRect`, `getComputedStyle`) and quote the number — the
+  judges' burden of proof is on PASS, so an unverifiable criterion is a FAIL.
+
 ## Public-repo guardrails
 
 - No secrets committed; installing needs no token by design.

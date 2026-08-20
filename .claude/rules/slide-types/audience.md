@@ -62,4 +62,19 @@ never heard of.
   only the timer lets phones answer before Start. `undefined` = no lobby ⇒ show the question
   (fail-open). Keep it a `computed` (it changes live), never a mount-time read.
 
-Self-check the finished audience view with **`aha-design-audience-judge`**.
+## Not done until the judge passes
+
+Rendering is a draft, not a finish line. Run the finished audience view through
+**`aha-design-audience-judge`**, fix **every** FAIL, and re-judge until the verdict reads `OK TO SHIP`.
+
+- **Judge against the marketplace's `origin/main`, not the local plugin copy.** That
+  cache goes stale (observed hundreds of commits behind), so judging from it checks last
+  month's rules. `git fetch origin` in
+  `~/.claude/plugins/marketplaces/aha-claude-plugins` and
+  `git show origin/main:plugins/aha-design/skills/aha-design-audience-judge/SKILL.md`,
+  or refresh with `/plugin`.
+- **Read every criterion; don't grep.** Walking the list is what surfaces the failures
+  you didn't already suspect.
+- **Prove each PASS by measuring** in the browser (`getBoundingClientRect` /
+  `getComputedStyle`) and quote the number. The judge puts the burden of proof on PASS —
+  a criterion you cannot verify is a FAIL, not a benefit of the doubt.

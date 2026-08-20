@@ -60,6 +60,16 @@ produce a NEW slide type — do NOT edit `demo/`. Steps:
    AND dark decks) — take colour from the deck theme, never a fixed ink on the canvas.
 6. **Verify**: `npm run type-check && npm run build`; `npm run dev` to preview
    (`VITE_AHA_DEFAULT_SLIDE=<slug>` picks the dev landing type).
+7. **JUDGE — the surface is not done until this passes.** A rendering surface is a draft.
+   Run each one through its judge (`aha-design-canvas-judge` / `aha-design-settings-judge`
+   / `aha-design-audience-judge`), fix **every** FAIL, and re-judge until the verdict reads
+   `OK TO SHIP`. Judge against the marketplace's **`origin/main`**, not the local plugin
+   copy — that cache has been observed hundreds of commits behind, so judging from it
+   checks stale rules. Read the criteria in full (`C1…C14`, `SETTINGS-01…-48`) rather than
+   grepping for the rule you already suspect, and prove each PASS by **measuring** in the
+   browser (`getBoundingClientRect` / `getComputedStyle`) — "looks right" is not evidence,
+   and the judges put the burden of proof on PASS. See README → *"Building the UI is not
+   the last step — judging it is"*.
 
 ## Reuse host capabilities before building new
 

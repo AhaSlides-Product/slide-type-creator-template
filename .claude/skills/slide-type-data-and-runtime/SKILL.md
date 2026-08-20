@@ -197,3 +197,9 @@ If a fresh clone reports HTTPS/CORS on `manifest.json`, the fix is **`npm run se
 - [ ] `npm run setup:https` run (mkcert trusted cert) — verified inside the real host
       over HTTPS, not just the standalone dev preview. A basic-ssl self-signed cert does
       NOT unblock the host's cross-origin manifest fetch.
+- [ ] **Every surface judged and re-judged to `OK TO SHIP`** — `aha-design-canvas-judge`
+      / `aha-design-settings-judge` / `aha-design-audience-judge`, run against the
+      marketplace's `origin/main` (the local plugin cache goes stale), criteria read in
+      full rather than grepped, each PASS proved by a measurement. This skill covers how
+      the slide DATA-FLOWS; the judges cover how it LOOKS, and a build is only finished
+      when both are clean. See README → *"Building the UI is not the last step"*.
