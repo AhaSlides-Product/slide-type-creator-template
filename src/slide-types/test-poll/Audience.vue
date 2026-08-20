@@ -13,8 +13,12 @@ import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig }
 const plugin: any = useAudiencePlugin()
 const slideProps = computed(() => plugin.slideProps?.value ?? {})
 const slideId = computed(() => Number(slideProps.value?.id ?? 0))
+// Version-scoped local tally (matches Canvas): a "Reset result" / edit bumps
+// slide.version → a fresh channel → the same-browser fallback resets too. CONFIG
+// stays slideId-only so the author's options survive the reset.
+const slideVersion = computed(() => Number(slideProps.value?.version ?? 0))
 const configChannel = computed(() => `${POLL_CONFIG_KEY}/s${slideId.value}`)
-const votesChannel = computed(() => `test-poll-votes/s${slideId.value}`)
+const votesChannel = computed(() => `test-poll-votes/s${slideId.value}-v${slideVersion.value}`)
 
 const config = useSync<PollConfig>(configChannel, createDefaultPollConfig())
 const votes = useSync<Record<string, number>>(votesChannel, {})

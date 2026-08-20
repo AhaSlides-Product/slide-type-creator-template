@@ -11,8 +11,14 @@ import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig }
 const plugin: any = usePresenterPlugin()
 const slideProps = computed(() => plugin.slideProps?.value ?? {})
 const slideId = computed(() => Number(slideProps.value?.id ?? 0))
+// The host bumps slide.version on "Reset result" AND on a content edit. Live vote
+// data is keyed by (slideId, slideVersion) so a bump re-points it to a fresh empty
+// tally — that IS the reset. Read the version REACTIVELY (a cached one returns an
+// empty list and looks like "data vanished"). CONFIG stays slideId-only below, so
+// the author's options survive a reset/edit.
+const slideVersion = computed(() => Number(slideProps.value?.version ?? 0))
 const configChannel = computed(() => `${POLL_CONFIG_KEY}/s${slideId.value}`)
-const votesChannel = computed(() => `test-poll-votes/s${slideId.value}`)
+const votesChannel = computed(() => `test-poll-votes/s${slideId.value}-v${slideVersion.value}`)
 
 const config = useSync<PollConfig>(configChannel, createDefaultPollConfig())
 // Same-browser dev fallback tally (BroadcastChannel); real counts come from the
@@ -46,9 +52,15 @@ async function pollVotes() {
   try {
     // accessToken is a PLAIN string on the plugin (not a ref) — no `.value`.
     const client = new ApiClient(baseUrl, plugin.accessToken)
-    // No slideVersion filter — count every submission for the slide (avoids a
-    // version mismatch silently dropping votes).
-    const subs = await client.getSubmissions({ slideId: slideId.value })
+    // Version-scoped: count only THIS version's submissions, so "Reset result" /
+    // an edit (both bump slide.version) start a clean tally. slideVersion is read
+    // reactively each poll, so the view self-heals once the prop settles after a
+    // reset. Passing 0/undefined (dev/no host) simply omits the filter.
+    const subs = await client.getSubmissions(
+      slideVersion.value
+        ? { slideId: slideId.value, slideVersion: slideVersion.value }
+        : { slideId: slideId.value },
+    )
     const bySender = new Map<string, string[]>()
     for (const s of (subs || []) as any[]) {
       const ids = optionIdsOf(s)

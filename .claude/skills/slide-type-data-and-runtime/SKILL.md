@@ -20,6 +20,36 @@ a submit flow, or you're about to test it inside the real host. Every rule below
 is here because breaking it produced a shipped bug that looked like "nothing
 happens" with no error on screen.
 
+## 0. Data identity — key every value by the right slice of `(presentationId, slideId, slideVersion)`
+
+**Getting the key wrong is how "Reset result" wipes the author's setup, or how an
+edit fails to clear stale votes.** Every value a slide type stores belongs to exactly
+one of three classes, each keyed differently — decide the class first, then the key:
+
+| Data | Key by | Survives "Reset result" / edit? | How |
+|---|---|---|---|
+| **Persistent config / settings** (options, toggles, layout) | **`slideId`** only | **YES — must survive** | `upsertSlideAttributeAction({ slideId, attributeKey })` + `useSync(\`<KEY>/s${slideId}\`)` |
+| **Live counts / submissions** (votes, answers, tallies) | **`(presentationId, slideId, slideVersion)`** | **NO — must reset** | `getSubmissions({ slideId, slideVersion })` (poll) or `getBucket({ presentationId, slideId, slideVersion })` + `subscribeTopic` (handler) |
+| **Same-browser sync** (`useSync` channels) | channel string; version-scope the LIVE ones, slideId-only for config | n/a (BroadcastChannel, same browser) | `<slug>-votes/s${slideId}-v${slideVersion}` for tallies; `<KEY>/s${slideId}` for config |
+
+- **"Reset result" == a `slideVersion` bump.** The host does NOT delete rows; it
+  advances `slide.version`, and version-scoped data is simply queried at the new
+  version, so it reads empty. That is the ONLY reset mechanism — so live data MUST be
+  version-scoped or reset does nothing, and config MUST NOT be version-scoped or the
+  author's options vanish on every reset/edit. A content edit bumps the version too,
+  which is why editing a live slide correctly restarts its count.
+- **Read `slideVersion` reactively**, never cache it at mount — a stale version
+  returns an empty list (looks like "the data disappeared"), and on re-present the
+  `slide` prop can arrive stale then settle, so a `computed(() => slideProps.value?.version)`
+  re-queried each poll self-heals; an `onMounted`-only read does not.
+- **A reset that is NOT a version bump** (an app-level round/`roundId` in `useSync`, a
+  local `clear()` button) is on you: `getSubmissions` can't scope by it, so clear the
+  local tally yourself and don't backfill stale-round rows.
+- `presentationId` scopes live data to this presentation (duplicated decks don't
+  cross-count); `slideId` is the stable per-slide identity; `slideVersion` is the
+  reset/edit axis. Config needs only `slideId` because it is meant to outlive every
+  version.
+
 ## 1. The plugin field contract — Ref vs plain (this bites hardest)
 
 `usePresenterPlugin()` / `useAudiencePlugin()` return a MIX of Vue `Ref`s and
@@ -44,14 +74,21 @@ check for a ref wrapper before choosing `.value`.
 The audience writes a vote with `ApiClient.sendLiveSubmission(SlideType.X, { …,
 attributes: { … } })`. The Canvas reads them back in ONE of two ways:
 
-- **No handler (default, simplest):** poll `ApiClient.getSubmissions({ slideId })`
-  on an interval and tally client-side from `submission.attributes`. **Verified on
-  staging** (`audience.dev.ahaslide.com`): `POST /api/live/submissions` (→ 202)
-  lands in the queryable `GET /api/submissions` store with `attributes.optionIds`
-  intact, so this path works cross-device with NO handler. Rules, each verified:
-    - **Query by `slideId` ONLY — do NOT pass `slideVersion`.** A mismatch returns
-      an empty list (measured: `slideVersion=2` for a v1 submission → `0` items),
-      and a slide edit bumps the version, so filtering silently zeros the chart.
+- **No handler (default, simplest):** poll
+  `ApiClient.getSubmissions({ slideId, slideVersion })` on an interval and tally
+  client-side from `submission.attributes`. **Verified on staging**
+  (`audience.dev.ahaslide.com`): `POST /api/live/submissions` (→ 202) lands in the
+  queryable `GET /api/submissions` store with `attributes.optionIds` intact, so this
+  path works cross-device with NO handler. Rules, each verified:
+    - **Scope the query by the CURRENT `slideVersion` (read reactively) — this is
+      how "Reset result" clears the chart.** The host bumps `slide.version` on a
+      reset AND on a content edit; querying the current version returns only
+      post-reset votes, so the tally starts clean — the intended behaviour. The
+      empty-list measurement (`slideVersion=2` for a v1 submission → `0` items) is a
+      trap ONLY when you pass a **stale/cached** version — never a reason to drop the
+      filter. Read `slideProps.value?.version` inside the poll (or a `computed`) so
+      it self-heals after the version settles; omit the filter only when it's
+      `0`/undefined (dev/no host). See §0 for the full keying convention.
     - The `type` param does not strictly filter (both `response` and the slide-type
       string returned the row), so omit it — it can't help and might mislead.
     - **Dedupe by `senderId`** so a re-vote replaces, not double-counts; then tally
@@ -93,7 +130,9 @@ deprecated no-ops — don't rely on them.
 (`enableQuestion*` → `slideProps.title/description/image`), NOT config fields. The
 per-type `config.ts` is only the slide's own data model (options/layout + defaults
 + a `migrate()` that back-fills every field). Turning a host feature on = a
-manifest edit; a slide-specific field = a `config.ts` + control edit.
+manifest edit; a slide-specific field = a `config.ts` + control edit. This config is
+**slideId-keyed and must survive a reset/edit** — never fold `slideVersion` into its
+key (§0), or "Reset result" erases the author's options.
 
 ## 5. Standalone dev vs the real host — they differ
 
@@ -146,8 +185,12 @@ If a fresh clone reports HTTPS/CORS on `manifest.json`, the fix is **`npm run se
 ## Pre-ship checklist
 
 - [ ] `plugin.accessToken` read as a plain string; `baseUrl`/`slideProps` via `.value`.
-- [ ] Canvas gets live counts (getSubmissions poll or handler+subscribeTopic), NOT
-      filtered by slideVersion, deduped by sender, with an API_BASE fallback.
+- [ ] Data keyed by class (§0): config by `slideId` (survives reset/edit); live
+      counts/submissions by `(presentationId, slideId, slideVersion)` with the CURRENT
+      version read reactively (so "Reset result" clears them); `useSync` live channels
+      version-scoped. Counts deduped by sender, with an API_BASE fallback.
+- [ ] Verified: "Reset result" clears the tally but keeps the options; editing an
+      option keeps the other options (config survived the version bump).
 - [ ] Optimistic tally bumped before the await + rolled back on reject; stable
       default option ids.
 - [ ] Host title/desc/image via manifest flags; config.ts holds only the data model.

@@ -16,6 +16,14 @@ canvas: the 16:9 stage, theme-driven colour, framed vs full-canvas, the control-
 the live `useSync` channel — BroadcastChannel doesn't replay, so a late mount otherwise
 shows defaults.
 
+**Key data by class (else "Reset result" clears the wrong thing):** live counts/submissions
+are keyed by `(presentationId, slideId, slideVersion)` — query `getSubmissions({ slideId,
+slideVersion })` / `getBucket(...)` with the CURRENT `slide.version` read **reactively**;
+persistent config stays `slideId`-only so it survives. "Reset result" == a `slideVersion`
+bump, so version-scoping is what makes reset clear the tally; a cached version returns an
+empty list ("data vanished"), and version-scoping the config would erase the author's setup.
+Full convention: `slide-type-data-and-runtime` §0.
+
 ## Make-or-break invariants
 
 - **Nothing paints a background.** The canvas is an iframe inside the presenter app, so the
