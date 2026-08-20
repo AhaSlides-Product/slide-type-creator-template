@@ -96,7 +96,10 @@ explicitly asks.
 
 Build the **Settings** surface from the composed controls in **`@/iframe/settings`**
 (copied from slide-type-creator) rather than hand-rolling inputs — this is what the
-`aha-design-settings` skill's patterns map to:
+`aha-design-settings` skill's patterns map to. The **live gallery of these controls**
+(every one in its real states + correct usage) is the canonical reference — open it before
+creating or updating any settings control and build against what it shows:
+**https://staging-slides-marketplace.ahaslides.io/settings-lab**.
 
 - Layout: `SectionHeader`, `SettingRow`, `SubSettingGroup`
 - Controls: `OptionRow`, `CardSelect`, `ModeField`, `CountedInput`, `CountedTextarea`,

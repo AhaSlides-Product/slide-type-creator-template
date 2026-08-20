@@ -14,9 +14,30 @@ separated + confirm modal.
 Build from the composed controls in **`@/iframe/settings`** — don't hand-roll inputs:
 `SectionHeader`, `SettingRow`, `SubSettingGroup`, `OptionRow`, `CardSelect`, `ModeField`,
 `CountedInput` / `CountedTextarea`, `NumberWithUnit`, `NumberedItem`, `QuestionList`,
-`HelpTooltip`, `InfoBox`, `ImageDropzone`, `ImageActionButton`. Class-string / spacing
-tokens come from **`@/iframe/uiStandard`** (backed by `src/iframe/ui-standard.json`) —
+`HelpTooltip`, `InfoBox`, `ImageDropzone`, `ImageActionButton`, `DropdownMenu`. Class-string /
+spacing tokens come from **`@/iframe/uiStandard`** (backed by `src/iframe/ui-standard.json`) —
 import them instead of retyping utility strings.
+
+## The canonical reference — the settings component library (settings-lab)
+
+**Before you create OR update ANY settings control, open the live component library and
+build against what it shows:** **https://staging-slides-marketplace.ahaslides.io/settings-lab**.
+It is the interactive gallery of exactly the `@/iframe/settings` controls above — each one
+rendered in its real states with the props/usage that are considered correct. It is the
+source of truth for how a control LOOKS and is COMPOSED here.
+
+- **Every setting you add or change must map to a component from settings-lab**, used the way
+  the lab renders it — same control for the same job (a repeatable list → `OptionRow` /
+  `QuestionList`, a mode/segmented choice → `ModeField` / `CardSelect`, a counted field →
+  `CountedInput` / `CountedTextarea`, an image field → `ImageDropzone` / `ImageActionButton`,
+  a help glyph → `HelpTooltip`, a note → `InfoBox`, etc.). Pick the control by matching your
+  need to a demo in the lab, not by reaching for a raw Ant primitive.
+- **If no lab component fits**, that is the signal to reuse the nearest one or raise the gap —
+  NOT to hand-roll a bespoke input. A control that doesn't exist in the lab does not belong in
+  a `Settings.vue` without first being added to `@/iframe/settings` (and therefore the lab).
+- A plain themed `<a-input>` / `<a-switch>` / `<a-select>` is still correct for a shape the lab
+  documents as a pass-through — reach into `@/iframe/settings` for composed LAYOUT or a shape
+  Ant lacks. When unsure which applies, the lab's demo for that control is the tie-breaker.
 
 ## Where the config lives — manifest.json, not this file
 

@@ -8,6 +8,28 @@ paths:
 **Load `aha-design:aha-design-audience`** first — the audience-side iframe: mobile-first
 layout, input UI, submitted/waiting feedback, height reporting.
 
+## The canonical reference — the audience component library (audience-lab)
+
+**Before you create OR update ANY audience control, open the live component library and
+build against what it shows:** **https://staging-slides-marketplace.ahaslides.io/audience-lab**
+(page title "Audience component library · AhaSlides Playground"). It renders the audience-side
+patterns — `AnswerOption` / `AnswerOptionList`, `ScaleSlider`, `ImageUploader`, the input /
+timer / feedback anatomy — each in its real states, **demoed on BOTH a light and a dark deck**,
+with a "Use when / Not for" note per pattern. It is the source of truth for how an audience
+control LOOKS and WHEN to reach for it.
+
+- **Match your audience UI to a pattern from the lab**, used the way it renders it — an
+  answer-choice list → the `AnswerOption` / `AnswerOptionList` shape, a rating/scale input →
+  `ScaleSlider`, a photo submission → `ImageUploader`, submitted/correct/incorrect feedback →
+  the feedback states the lab shows. Pick the pattern by matching your mechanic to a lab demo,
+  not by inventing a bespoke tap row.
+- **Verify against the lab's light AND dark deck demos.** The lab shows each pattern on both
+  because the audience surface paints nothing and ink tracks `slideProps.textColour` (see the
+  contrast invariant below). If your control reads on one deck but not the other, the lab's
+  side-by-side is the reference for what "correct on both" looks like.
+- **If no lab pattern fits**, that is the signal to reuse the nearest one or raise the gap —
+  NOT to hand-roll a bespoke control the lab doesn't document.
+
 ## Data
 
 `useAudiencePlugin()`. Submit with
