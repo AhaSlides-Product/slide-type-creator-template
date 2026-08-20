@@ -27,17 +27,33 @@ rendered in its real states with the props/usage that are considered correct. It
 source of truth for how a control LOOKS and is COMPOSED here.
 
 - **Every setting you add or change must map to a component from settings-lab**, used the way
-  the lab renders it — same control for the same job (a repeatable list → `OptionRow` /
-  `QuestionList`, a mode/segmented choice → `ModeField` / `CardSelect`, a counted field →
-  `CountedInput` / `CountedTextarea`, an image field → `ImageDropzone` / `ImageActionButton`,
-  a help glyph → `HelpTooltip`, a note → `InfoBox`, etc.). Pick the control by matching your
-  need to a demo in the lab, not by reaching for a raw Ant primitive.
+  the lab renders it. Match your NEED to the lab demo — this is the mapping, and it is not
+  optional:
+
+  | The field you're building | The library control (NOT a raw primitive) |
+  |---|---|
+  | A single-line text field | **`CountedInput`** (never a bare `<Input>`) |
+  | A multi-line text field | **`CountedTextarea`** (never a bare `<Textarea>`) |
+  | A number with a unit (seconds, characters, points…) | **`NumberWithUnit`** (never a bare `<InputNumber>`) |
+  | A repeatable list of answers/items | **`OptionRow`** / **`QuestionList`** / **`NumberedItem`** |
+  | A 2–4 way mode / layout choice | **`ModeField`** / **`CardSelect`** |
+  | An image field | **`ImageDropzone`** / **`ImageActionButton`** |
+  | A group heading / a lone control's label | **`SectionHeader`** (bold group) / **`SettingRow`** (single control) |
+  | A dependent sub-setting shown when a toggle is on | **`SubSettingGroup`** |
+  | A help glyph / an inline note | **`HelpTooltip`** (`?`) / **`InfoBox`** |
+
+- **A raw Ant primitive where the lab has a dedicated control is a FAIL.** A bare `<Input>` for
+  text or `<InputNumber>` for a number "type-checks and renders" but does NOT match the lab —
+  that is exactly the miss this rule exists to stop. The plain-primitive path is reserved for
+  the few shapes the lab documents as pass-throughs (`<Switch>`, `<Select>`, `<Segmented>`,
+  `<RadioGroup>`) — text and numbers are NOT among them.
 - **If no lab component fits**, that is the signal to reuse the nearest one or raise the gap —
   NOT to hand-roll a bespoke input. A control that doesn't exist in the lab does not belong in
   a `Settings.vue` without first being added to `@/iframe/settings` (and therefore the lab).
-- A plain themed `<a-input>` / `<a-switch>` / `<a-select>` is still correct for a shape the lab
-  documents as a pass-through — reach into `@/iframe/settings` for composed LAYOUT or a shape
-  Ant lacks. When unsure which applies, the lab's demo for that control is the tie-breaker.
+- **Mechanical check:** `npm run lint:settings` flags a raw `<Input>` / `<Textarea>` (ERROR →
+  use `CountedInput` / `CountedTextarea`), a raw `<InputNumber>` (WARN → `NumberWithUnit` when
+  it has a unit), and a root missing `SETTINGS_ROOT_CLASS`. It is a floor, not the finish line —
+  the lab match + the `aha-design-settings-judge` pass below are still required.
 
 ## Where the config lives — manifest.json, not this file
 
@@ -75,6 +91,13 @@ extend `config.ts` and render a control here.
 - **Transparent surface.** This panel is an iframe inside the host editor, so the host owns
   the background — paint nothing. Ink is a fixed brand token here (the surface behind it is
   the editor's app chrome, not the deck).
+- **Always a top-padded root — the panel NEVER starts flush against the top.** The root
+  element MUST be `:class="SETTINGS_ROOT_CLASS"` (from `@/iframe/uiStandard`), which carries the
+  standard `pt-6` top padding (plus `px-4 pb-4`). The first control must have breathing room
+  above it against the host's editor chrome — a settings panel with no padding-top reads as
+  broken/cramped. Never swap the root for a bare `<div>` or a custom class that drops the top
+  padding; if you need a different outer layout, keep `SETTINGS_ROOT_CLASS` and nest inside it.
+  Between fields use `SETTINGS_FIELD_GAP_CLASS` (`mb-6`), never ad-hoc margins.
 - **Ant Design Vue via the theme.** A plain `<a-input>` / `<a-switch>` / `<a-select>`
   already carries the AhaSlides storybook look (Antd is globally registered in `main.ts`) —
   use those directly and reach into `@/iframe/settings` only for composed layout or a shape
