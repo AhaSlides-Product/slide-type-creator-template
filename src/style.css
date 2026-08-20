@@ -13,3 +13,15 @@
 body {
   font-family: var(--font-sans);
 }
+
+/* Settings panels ALWAYS keep top padding by default. Every slide type's Settings
+   root carries a `*-settings` data-testid; this guarantees the panel never renders
+   flush against the host editor chrome even if a utility class is purged or the
+   host injects a padding reset. It matches SETTINGS_ROOT_CLASS's pt-6 (24px), so
+   it never doubles (padding-top is not additive) — it is the floor, not an addition.
+   `!important` so it wins even if the host editor injects a padding reset onto the
+   plugin root. Canvas/Audience roots use a `*-root` testid and are intentionally NOT
+   matched (they must stay flush). */
+[data-testid$="-settings"] {
+  padding-top: 1.5rem !important;
+}

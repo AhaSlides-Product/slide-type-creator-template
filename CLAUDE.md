@@ -32,6 +32,29 @@ here and in the real product.
   the HTTPS/CORS/cert setup. It exists because each of those, done wrong, produced a silent
   zero-count chart with no on-screen error.
 
+## Setup — the aha-design plugin is a PREREQUISITE, load it FIRST
+
+**Do this before any slide-type work.** The per-surface rules and the required design
+JUDGES (`aha-design-settings-judge` / `-canvas-judge` / `-audience-judge`) live in the
+`aha-design` plugin. Building a surface without it means shipping unjudged UI — the exact
+gap that produced the wrong-controls / missing-padding misses.
+
+The repo already declares it in `.claude/settings.json` (`extraKnownMarketplaces:
+aha-design-public` + `enabledPlugins: aha-design@aha-design-public`), so on a first open
+Claude Code should offer to trust & install it. If the plugin is NOT active in the session
+(the `aha-design-*` skills don't appear in the Skill tool), install it explicitly, then
+**RESTART the session** — plugin changes only take effect next session:
+
+```bash
+claude plugin marketplace add AhaSlides-Product/aha-design-public
+claude plugin install aha-design@aha-design-public
+# then restart the Claude Code session so the aha-design-* skills + judges load
+```
+
+Verify with `claude plugin list` — `aha-design@aha-design-public` must read **enabled**.
+Do NOT start building or claim a surface done until the plugin is loaded and its judge has
+run; "type-check + build pass" is not a substitute for the judge.
+
 ## Creating a slide type from a prompt
 
 When someone says e.g. **"tạo cho tôi 1 slide đua ngựa" / "make me a horse-race slide"**,
