@@ -65,7 +65,7 @@
     "note": "Settings and Audience are content-height iframes: the host shrink-wraps them from the height the plugin reports, so both ALWAYS pass { autoHeight: true } explicitly \u2014 relying on the default silently loses it the moment someone passes an options object without the field. The Canvas normally lives inside the host's fixed 16:9 stage and must NOT report a content height; turn it on only when the slide type's purpose genuinely calls for a content-driven canvas, and say why at the call site."
   },
   "settings": {
-    "rootClass": "flex flex-col p-4",
+    "rootClass": "flex flex-col px-4 pt-6 pb-4",
     "forbiddenRootClasses": [
       "h-full",
       "overflow-y-auto",

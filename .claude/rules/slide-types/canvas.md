@@ -46,7 +46,11 @@ shows defaults.
   and every glyph renders in the wrong face. On any surface that renders text, use
   **`@/iframe/deckFont`**: `useDeckFont(computed(() => presentationProps.value?.fontFamily))`
   to inject the webfont into this iframe, and `resolveFontFamily(name)` for the CSS value
-  (deck family + robust sans fallback). Never bind a bare font name.
+  (deck family + robust sans fallback). Never bind a bare font name. The **base** brand font
+  (Plus Jakarta Sans — the `resolveFontFamily` fallback and the Settings/editor font) is
+  loaded once in `index.html` + applied via `--font-sans` in `src/style.css`; the SDK only
+  declares `--aha-fontFamily`, it ships no webface, so without that load everything falls
+  back to system sans.
 - **Framed vs full-canvas must agree** between the manifest (`enableFullScreen` /
   `enableQuestionTitle`) and the root background.
 - **Quiz lobby (scored slides only): start on `quizStatus`, not on `presenting`.** For a

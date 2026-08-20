@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- AhaSlides brand font. The SDK declares --aha-fontFamily: Plus Jakarta Sans
+         but ships no webface, so without this the whole UI (Settings included) and
+         the deck-font fallback render in system sans. Deck fonts are loaded on demand
+         per iframe by src/iframe/deckFont.ts. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    />
     <title>AhaSlides Slide Types</title>
   </head>
   <body>

@@ -1,1 +1,15 @@
 @import "tailwindcss";
+
+/* Brand type. The SDK declares --aha-fontFamily (Plus Jakarta Sans) but never
+   loads the webface or applies it, so every surface fell back to system sans —
+   the "font family wrong" report. The webface is loaded in index.html; here we
+   make Plus Jakarta Sans the app default (Tailwind `font-sans` + the base body
+   font). Canvas/Audience override this per-iframe with the live deck font via
+   src/iframe/deckFont.ts; Settings inherits it (editor chrome, not deck-themed). */
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}
