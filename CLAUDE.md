@@ -58,8 +58,13 @@ produce a NEW slide type — do NOT edit `demo/`. Steps:
    URLs/folder/`type` stay the bare slug; only `pinKey` carries the `developer-` prefix.
 5. **Design** per the `aha-design-*` skills; keep the surfaces theme-driven (readable on light
    AND dark decks) — take colour from the deck theme, never a fixed ink on the canvas.
-6. **Verify**: `npm run type-check && npm run build`; `npm run dev` to preview
-   (`VITE_AHA_DEFAULT_SLIDE=<slug>` picks the dev landing type).
+6. **Verify — always run the dev server after CREATING or UPDATING a slide type; a build
+   is not a test.** `npm run type-check && npm run build` only proves it compiles. You MUST
+   then `npm run dev` (`VITE_AHA_DEFAULT_SLIDE=<slug>` picks the dev landing type) and open
+   the surface(s) you touched in the browser — `https://localhost:5173/<slug>/{canvas,settings,audience}`
+   — before calling the change done or handing it back. Open two tabs (Canvas + Audience) to
+   watch the live flow. For a Settings change also run `npm run lint:settings`. "It renders /
+   type-checks" is not "it works" — every create/update lands in a running dev server first.
 7. **JUDGE — the surface is not done until this passes.** A rendering surface is a draft.
    Run each one through its judge (`aha-design-canvas-judge` / `aha-design-settings-judge`
    / `aha-design-audience-judge`), fix **every** FAIL, and re-judge until the verdict reads
