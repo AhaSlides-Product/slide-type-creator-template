@@ -13,12 +13,20 @@ with the public `aha-design` skills plugin pre-wired.
 
 ```bash
 npm install         # public deps + @aha/* tarballs — no token needed
+npm run setup:https # ONE-TIME per machine: mkcert trusted cert (certs/localhost*.pem)
 npm run dev         # HTTPS dev server on https://localhost:5173
 ```
 
-`npm run dev` serves **HTTPS by default** (self-signed via `@vitejs/plugin-basic-ssl`)
-because the host loads the plugin in an HTTPS iframe — an `http://localhost` iframe is
-mixed-content-blocked. Use `npm run dev:http` to force plain HTTP.
+`npm run dev` serves **HTTPS by default** because the host loads the plugin in an HTTPS
+iframe — an `http://localhost` iframe is mixed-content-blocked. **To test inside the real
+presenter/audience host you MUST run `npm run setup:https` first:** the host fetches
+`https://localhost:5173/manifest.json` cross-origin, and a browser silently rejects that
+background fetch for an UNtrusted cert — surfacing as an "HTTPS/CORS" error you can't click
+through (the usual fresh-clone failure). `setup:https` uses
+[`mkcert`](https://github.com/FiloSottile/mkcert) (`brew install mkcert nss`) to write a
+locally-trusted cert into `certs/` (git-ignored); vite auto-detects it. Without it, `npm run
+dev` falls back to a self-signed cert — fine for opening `https://localhost:5173` directly,
+but it will NOT unblock the host. `npm run dev:http` forces plain HTTP (host testing off).
 
 ## Structure
 
@@ -55,18 +63,20 @@ edit. `test-poll/` is the reference.
 The plugin only fully works inside the host (theme, auth, live counts). To test your
 local build against staging:
 
-1. **Run the HTTPS dev server**
+1. **Generate a trusted cert, then run the HTTPS dev server**
 
    ```bash
-   npm run dev            # https://localhost:5173
+   npm run setup:https    # once per machine — mkcert local CA + certs/localhost*.pem
+   npm run dev            # https://localhost:5173 (vite auto-uses the trusted cert)
    ```
 
-2. **Trust the self-signed cert once.** Open <https://localhost:5173> directly in the
-   browser you'll test with and accept the warning (Chrome: click the page and type
-   `thisisunsafe`). A cross-origin background fetch can't click through a cert prompt,
-   so this step is required — or generate a trusted cert with
-   [`mkcert`](https://github.com/FiloSottile/mkcert), or launch a throwaway
-   `--disable-web-security` Chrome.
+2. **Why the trusted cert is required.** The presenter does a cross-origin background
+   `fetch(https://localhost:5173/manifest.json)`, and a background fetch **cannot click
+   through a cert warning** — so a self-signed cert is silently rejected and shows up as
+   an HTTPS/CORS failure. `npm run setup:https` (mkcert) makes the cert locally-trusted,
+   so the fetch just works — no `thisisunsafe`, no `--disable-web-security`. (Missing
+   `mkcert`? `brew install mkcert nss`, then re-run.) The basic-ssl self-signed fallback
+   is only for opening `https://localhost:5173` directly, not for host testing.
 
 3. **Register the manifest link in the presenter.** Open the presenter
    (<https://presenter.dev.ahaslide.com>), go to **Profile → Developer**, and in the
@@ -110,8 +120,9 @@ in `aha-slide-plugin` (every push to its default branch).
 ## Commands
 
 ```bash
+npm run setup:https  # one-time: mkcert trusted cert (certs/localhost*.pem) — REQUIRED for host testing
 npm run dev          # HTTPS dev server (https://localhost:5173)
-npm run dev:http     # plain HTTP dev server
+npm run dev:http     # plain HTTP dev server (host testing off)
 npm run type-check   # vue-tsc --noEmit
 npm run build        # type-check + vite build
 ```

@@ -4,9 +4,11 @@ description: >-
   MANDATORY before wiring DATA or LIVE behaviour on any slide type in this repo
   (aha-slide-types-public) — reading/writing submissions, live vote/answer counts
   on the Canvas, the audience submit flow, cross-surface sync, or running/testing
-  the plugin against a real HTTPS host. Encodes the SDK plugin contract (which
-  fields are Refs vs plain) and the exact pitfalls that produced silent zero-count
-  charts, so a new slide type doesn't repeat them. The per-surface design rules
+  the plugin against a real HTTPS host — including the MANDATORY trusted-cert
+  (mkcert) local-HTTPS setup a fresh clone needs or the host's cross-origin
+  manifest fetch fails as a "CORS"/HTTPS error. Encodes the SDK plugin contract
+  (which fields are Refs vs plain) and the exact pitfalls that produced silent
+  zero-count charts, so a new slide type doesn't repeat them. The per-surface design rules
   (.claude/rules/slide-types/*) cover how a surface LOOKS; this covers how it
   DATA-FLOWS and RUNS.
 ---
@@ -102,22 +104,44 @@ often not `textColour`). Code so both work: guard host calls, fall back locally,
 and never assume a value the host injects is present. Real theme/auth/counting
 behaviour is only observable inside the host.
 
-## 6. Running & testing against a real HTTPS host
+## 6. Running & testing against a real HTTPS host — HTTPS with a TRUSTED cert is REQUIRED
 
-The plugin is loaded as an **iframe by an HTTPS host** (presenter/audience), so:
+The plugin is loaded as an **iframe by an HTTPS host** (presenter/audience), and the
+host does a **cross-origin background `fetch(https://localhost:5173/manifest.json)`**.
+A background fetch **cannot click through a cert warning** — so with an UNtrusted cert
+the browser silently rejects it and the failure reaches a new dev as a **"CORS" /
+network error with nothing to click**. This is the #1 fresh-clone onboarding failure:
+"I pulled the repo, ran `npm run dev`, and the presenter can't load my slide —
+HTTPS/CORS error." The dev server already sends the right CORS headers (`server.cors`);
+the missing piece is a **locally-trusted cert**, not CORS config.
 
-- **Dev server must be HTTPS.** `npm run dev` defaults to HTTPS (`@vitejs/plugin-basic-ssl`)
-  on `https://localhost:5173`. Opt out with `npm run dev:http`.
-- **CORS.** `server.cors` reflects the requesting origin so the host can
-  `fetch(<link>/manifest.json)` cross-origin. Without it the manifest fetch is
-  blocked.
-- **Trust the cert.** A cross-origin background fetch can't click through a cert
-  warning. Open `https://localhost:5173` once and accept the self-signed cert
-  (Chrome: type `thisisunsafe`), or use a `mkcert` locally-trusted cert for zero
-  warnings, or a `--disable-web-security` Chrome for a throwaway session.
+**MANDATORY setup — do this once per machine before testing in the host, and require it
+of anyone onboarding:**
+
+```bash
+npm run setup:https   # mkcert: installs a local CA + writes certs/localhost*.pem
+npm run dev           # vite auto-detects certs/ and serves a TRUSTED https://localhost:5173
+```
+
+`npm run setup:https` needs [`mkcert`](https://github.com/FiloSottile/mkcert) on PATH
+(`brew install mkcert nss` / `choco install mkcert` / `apt install mkcert`). `vite.config.ts`
+uses `certs/localhost.pem` + `certs/localhost-key.pem` when present (git-ignored, per
+machine); with a trusted cert the host's manifest fetch just works — no `thisisunsafe`,
+no `--disable-web-security`.
+
+- **Fallback only, NOT for host testing:** without a trusted cert `npm run dev` still
+  serves HTTPS via `@vitejs/plugin-basic-ssl` (self-signed). That is fine for opening
+  `https://localhost:5173` **directly** (accept the warning once), but it is exactly the
+  cert the host's cross-origin fetch rejects — so it does **not** unblock the presenter.
+  Treat mkcert as the standard; basic-ssl is a quick-look degrade.
+- **Never `npm run dev:http`** when testing in the host — an `http://localhost` iframe
+  inside an HTTPS host is mixed-content-blocked before CORS even matters.
 - In the presenter **Developer** page, set the manifest link (per env tab) to
-  `https://localhost:5173`; the env resolves by build DOMAIN, so a `develop`/
-  staging host reads the **Staging** tab.
+  `https://localhost:5173`; the env resolves by build DOMAIN, so a `develop`/staging host
+  reads the **Staging** tab.
+
+If a fresh clone reports HTTPS/CORS on `manifest.json`, the fix is **`npm run setup:https`
++ restart `npm run dev`**, not a CORS/vite change — the server already reflects the origin.
 
 ## Pre-ship checklist
 
@@ -127,4 +151,6 @@ The plugin is loaded as an **iframe by an HTTPS host** (presenter/audience), so:
 - [ ] Optimistic tally bumped before the await + rolled back on reject; stable
       default option ids.
 - [ ] Host title/desc/image via manifest flags; config.ts holds only the data model.
-- [ ] Verified inside the real host over HTTPS (cert trusted, CORS ok), not just dev.
+- [ ] `npm run setup:https` run (mkcert trusted cert) — verified inside the real host
+      over HTTPS, not just the standalone dev preview. A basic-ssl self-signed cert does
+      NOT unblock the host's cross-origin manifest fetch.

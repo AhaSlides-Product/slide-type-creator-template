@@ -31,11 +31,22 @@ shows defaults.
 - **`autoHeight` is a decision here, not a default.** A canvas normally fills the host's
   fixed 16:9 stage, so reporting a content height fights the stage. Enable it only when the
   slide type genuinely needs a content-driven canvas, and state why at the call site.
-- **Reuse host chrome, don't rebuild it.** Title, timer, vote count, full-screen are
-  host-rendered via the `ahaConfig.setting.enable*` flags in `public/manifest.json` — read
-  `slideProps`, don't add in-canvas versions. Note **`enableVoteCount` / `setSubmissionCount`
+- **Reuse host chrome, don't rebuild it.** Title (`enableQuestionTitle`), description
+  (`enableQuestionDescription`), timer, vote count, full-screen are host-rendered via the
+  `ahaConfig.setting.enable*` flags in `public/manifest.json` — read `slideProps`, **do NOT
+  render your own `<h1>`/`<p>` for them or the title/description paints TWICE** (once by the
+  host frame, once by the iframe). The question IMAGE is the exception: `enableQuestionImage`
+  only gives the presenter the host upload button — the host does not paint the image, so the
+  slide renders it from `slideProps.image`. Note **`enableVoteCount` / `setSubmissionCount`
   are effectively deprecated** — the host derives the response-count badge from the backend,
   so the iframe neither renders it nor writes it.
+- **Deck font: load it, don't just name it (AHAM-385).** The host forwards only the font
+  NAME via `presentation.fontFamily`, and a cross-origin plugin iframe does NOT inherit the
+  deck's `@font-face` — so `:style="{ fontFamily: name }"` silently falls back to system-ui
+  and every glyph renders in the wrong face. On any surface that renders text, use
+  **`@/iframe/deckFont`**: `useDeckFont(computed(() => presentationProps.value?.fontFamily))`
+  to inject the webfont into this iframe, and `resolveFontFamily(name)` for the CSS value
+  (deck family + robust sans fallback). Never bind a bare font name.
 - **Framed vs full-canvas must agree** between the manifest (`enableFullScreen` /
   `enableQuestionTitle`) and the root background.
 - **Quiz lobby (scored slides only): start on `quizStatus`, not on `presenting`.** For a

@@ -6,6 +6,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useAudiencePlugin, useSync } from '@aha/ui'
 import { ApiClient, SlideType } from '@aha/api'
 import { SubmissionSenderType, SubmissionType } from '@aha/common'
+import { resolveFontFamily, useDeckFont } from '@/iframe/deckFont'
 import type { PollConfig } from './config'
 import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
@@ -23,8 +24,12 @@ onMounted(() => {
   if (persisted) config.value = migratePollConfig(persisted)
 })
 
-const title = computed(() => slideProps.value?.title || '')
 const textColour = computed(() => slideProps.value?.textColour || '#1a1a2e')
+// Type tracks the deck font — load the deck's @font-face into this iframe and
+// resolve a fallback stack, or the phone renders in system-ui (AHAM-385).
+const deckFontName = computed(() => plugin.presentationProps?.value?.fontFamily || slideProps.value?.fontFamily)
+useDeckFont(deckFontName)
+const fontFamily = computed(() => resolveFontFamily(deckFontName.value))
 
 const selected = ref<Set<string>>(new Set())
 const submitted = ref(false)
@@ -92,9 +97,8 @@ async function submit() {
 </script>
 
 <template>
-  <div class="poll-audience px-5 py-6" :style="{ color: textColour }" data-testid="audience-root">
-    <h2 v-if="title" class="mb-4 text-lg font-semibold leading-snug">{{ title }}</h2>
-
+  <div class="poll-audience px-5 py-6" :style="{ color: textColour, fontFamily }" data-testid="audience-root">
+    <!-- No title here: the host renders the question (enableQuestionTitle). -->
     <div class="flex flex-col gap-3">
       <button
         v-for="opt in config.options"

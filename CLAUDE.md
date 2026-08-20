@@ -136,10 +136,17 @@ fixed shape). Turn a host feature on/off via its `setting.enable*` flag.
 
 ```bash
 npm install         # token-free (public deps + @aha/* Release tarballs)
-npm run dev         # vite dev server
+npm run setup:https # ONE-TIME per machine: mkcert trusted cert — REQUIRED before host testing
+npm run dev         # HTTPS vite dev server (auto-uses certs/ if present, else self-signed)
 npm run type-check  # vue-tsc --noEmit
 npm run build       # type-check + vite build
 ```
+
+**Fresh-clone HTTPS/CORS failure:** the host fetches `https://localhost:5173/manifest.json`
+cross-origin; a browser silently rejects that background fetch for an untrusted cert, so it
+surfaces as an HTTPS/CORS error. Fix = `npm run setup:https` (mkcert) + restart `npm run dev`,
+never a CORS/vite change — the server already reflects the origin. See
+`.claude/skills/slide-type-data-and-runtime` §6.
 
 Update the SDK: the tarball URLs point at `aha-slide-plugin`'s moving `sdk-latest` release
 (refreshed on every push to its default branch) — re-run `npm install` to pull the newest;

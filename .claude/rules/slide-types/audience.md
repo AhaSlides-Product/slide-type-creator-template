@@ -32,6 +32,14 @@ never heard of.
   `presentation.fontFamily`). A slide type never invents colour except a fallback, a
   semantic signal, or a prompt-requested colour noted in a comment. (`slide.baseColour` is
   presenter-only and never reaches this iframe.)
+- **Deck font: load it, don't just name it (AHAM-385).** The host forwards only the font
+  NAME; a cross-origin iframe does NOT inherit the deck's `@font-face`, so a bare
+  `fontFamily: <name>` renders in system-ui. Use **`@/iframe/deckFont`** —
+  `useDeckFont(computed(() => presentationProps.value?.fontFamily))` to inject the webfont
+  into this iframe, and `resolveFontFamily(name)` for the CSS value on the root.
+- **Don't rebuild host chrome.** The question title (`enableQuestionTitle`) is host-rendered
+  on the audience screen — read `slideProps`, don't add your own `<h2>{{ title }}</h2>` or it
+  shows twice.
 - **The submission lock is optimistic, and it ROLLS BACK.** Write the lock on tap so the
   phone confirms instantly, then **release it if `sendLiveSubmission` rejects** and say so
   on screen. A lock written before the request resolves and never undone is worse than no

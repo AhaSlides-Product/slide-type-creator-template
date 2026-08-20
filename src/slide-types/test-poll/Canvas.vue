@@ -4,6 +4,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { usePresenterPlugin, useSync } from '@aha/ui'
 import { ApiClient } from '@aha/api'
+import { resolveFontFamily, useDeckFont } from '@/iframe/deckFont'
 import type { PollConfig } from './config'
 import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
@@ -73,9 +74,11 @@ onUnmounted(() => { if (pollTimer) clearInterval(pollTimer) })
 // Server tally cross-device; the useSync tally is the same-browser dev fallback.
 const tally = computed<Record<string, number>>(() => (hasServer.value ? serverVotes.value : votes.value))
 
-// Host-provided question surface (enabled via the manifest enable* flags).
-const title = computed(() => slideProps.value?.title || '')
-const description = computed(() => slideProps.value?.description || '')
+// Host-rendered question chrome: the title (enableQuestionTitle) and description
+// (enableQuestionDescription) are drawn by the presenter app around this iframe —
+// the slide must NOT render them or they appear twice. The question IMAGE is
+// different: enableQuestionImage only gives the presenter the host upload button;
+// the host does not paint the image, so the slide renders it from slideProps.
 const image = computed(() => slideProps.value?.image?.large || slideProps.value?.image?.url || '')
 const hideResults = computed(() => Boolean(slideProps.value?.hideResult))
 // Host "show correct answer" reveal, only meaningful when the poll marks correct options.
@@ -88,7 +91,13 @@ const palette = computed<string[]>(() => {
     || slideProps.value?.presentationColorPalette
   return Array.isArray(p) && p.length ? p : ['#7C4DFF', '#00B8D9', '#FF7A59', '#36B37E', '#FFAB00', '#FF5630']
 })
-const fontFamily = computed(() => plugin.presentationProps?.value?.fontFamily || slideProps.value?.fontFamily || 'inherit')
+// Type tracks the deck font. The host forwards only the font NAME, and a
+// cross-origin iframe doesn't inherit the deck's @font-face — so load it into
+// this iframe (useDeckFont) AND resolve a robust fallback stack, or the slide
+// silently renders in system-ui instead of the deck's face (AHAM-385).
+const deckFontName = computed(() => plugin.presentationProps?.value?.fontFamily || slideProps.value?.fontFamily)
+useDeckFont(deckFontName)
+const fontFamily = computed(() => resolveFontFamily(deckFontName.value))
 
 const total = computed(() => Object.values(tally.value).reduce((a, b) => a + (b || 0), 0))
 const rows = computed(() => config.value.options.map((opt, i) => {
@@ -104,8 +113,8 @@ const rows = computed(() => config.value.options.map((opt, i) => {
     :style="{ color: textColour, fontFamily }"
     data-testid="canvas-root"
   >
-    <h1 v-if="title" class="text-[3.2vw] font-bold leading-tight mb-2">{{ title }}</h1>
-    <p v-if="description" class="text-[1.6vw] opacity-70 mb-3">{{ description }}</p>
+    <!-- No title/description here: the host renders them (enableQuestionTitle /
+         enableQuestionDescription). Only the question image is slide-rendered. -->
     <img
       v-if="image"
       :src="image"
