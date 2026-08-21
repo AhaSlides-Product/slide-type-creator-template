@@ -12,3 +12,16 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+// @aha/design ships as untyped JS (design-system tokens). We only read a handful
+// of semantic colour constants (colorSuccess / colorError / …), so a loose shape
+// is enough.
+declare module '@aha/design' {
+  export const SeedTokens: Record<string, string>
+  export const MapTokens: Record<string, string>
+  export const AliasTokens: Record<string, string>
+  export const CustomColors: Record<string, any>
+  export const antDesignTokens: Record<string, string>
+  const _default: Record<string, string>
+  export default _default
+}
