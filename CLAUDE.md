@@ -81,6 +81,10 @@ produce a NEW slide type — do NOT edit `demo/`. Steps:
    URLs/folder/`type` stay the bare slug; only `pinKey` carries the `developer-` prefix.
 5. **Design** per the `aha-design-*` skills; keep the surfaces theme-driven (readable on light
    AND dark decks) — take colour from the deck theme, never a fixed ink on the canvas.
+   **Before you create OR update ANY surface control, open the matching live component
+   library FIRST and build against what it shows** — Settings → **settings-lab**, Audience →
+   **audience-lab** (both linked under *Settings / Audience component library* below). This
+   applies to a fresh clone and to every later UI change, not just the first build.
 6. **Verify — always run the dev server after CREATING or UPDATING a slide type; a build
    is not a test.** `npm run type-check && npm run build` only proves it compiles. You MUST
    then `npm run dev` (`VITE_AHA_DEFAULT_SLIDE=<slug>` picks the dev landing type) and open
@@ -144,6 +148,31 @@ They are compositions over themed Ant primitives — a plain `<a-input>` / `<a-s
 library component only for the composed layout or a shape Ant lacks. Class-string / spacing
 tokens live in **`@/iframe/uiStandard`** (backed by `src/iframe/ui-standard.json`) — import
 them instead of retyping utility strings.
+
+## Audience component library
+
+The **Audience** surface has its own canonical reference — the same status the settings-lab
+holds for Settings. The **live gallery of the audience-side patterns** (each in its real
+states, demoed on BOTH a light and a dark deck, with a "Use when / Not for" note) is the
+source of truth for how an audience control LOOKS and WHEN to reach for it — **open it before
+creating or updating any audience control and build against what it shows:**
+**https://staging-slides-marketplace.ahaslides.io/audience-lab**
+(page title "Audience component library · AhaSlides Playground").
+
+- Patterns it renders: `AnswerOption` / `AnswerOptionList`, `ScaleSlider`, `ImageUploader`,
+  the submit-button / timer / feedback (submitted · waiting · correct/incorrect) anatomy.
+- Match your audience UI to a pattern from the lab, used the way it renders it — pick by
+  matching your mechanic to a demo, not by inventing a bespoke tap row. If no pattern fits,
+  reuse the nearest one or raise the gap — don't hand-roll.
+- Unlike Settings there is **no local `@/iframe/audience` component folder yet**, so the lab
+  (+ the `aha-design-audience` skill and the `audience` rule) IS the reference — verify a new
+  audience surface against the lab's light AND dark demos, since the surface paints nothing
+  and ink tracks `slideProps.textColour`.
+
+The per-surface rule (`.claude/rules/slide-types/audience.md`) fires automatically when you
+edit an `Audience.vue` and repeats this link; the pointer here is so a fresh clone reading
+CLAUDE.md sees it up front. (There is no canvas-lab — the canvas reference is the
+`aha-design-canvas` skill + the `canvas` rule.)
 
 ## manifest.json schema (per slide type)
 
