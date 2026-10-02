@@ -122,6 +122,7 @@ const rows = computed(() => config.value.options.map((opt, i) => {
 <template>
   <div
     class="poll-canvas h-full w-full flex flex-col justify-center px-[6%] py-[4%]"
+    dir="ltr"
     :style="{ color: textColour, fontFamily }"
     data-testid="canvas-root"
   >
@@ -151,7 +152,7 @@ const rows = computed(() => config.value.options.map((opt, i) => {
               class="h-[3vh] w-[3vh] rounded-md object-cover"
             />
             <span v-if="showCorrect" class="text-[1.6vw]">{{ row.correct ? '✅' : '❌' }}</span>
-            {{ row.label || '—' }}
+            <span dir="auto">{{ row.label || '—' }}</span>
           </span>
           <span class="tabular-nums opacity-90">{{ row.count }} · {{ hideResults ? '' : row.pct + '%' }}</span>
         </div>
