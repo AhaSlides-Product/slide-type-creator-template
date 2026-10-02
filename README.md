@@ -171,6 +171,16 @@ Two habits the judges assume, both learned the hard way:
   the browser (`getBoundingClientRect`, `getComputedStyle`) and quote the number — the
   judges' burden of proof is on PASS, so an unverifiable criterion is a FAIL.
 
+## Arabic and right-to-left
+
+New slide types get Arabic support from `src/iframe/locale.ts`:
+
+- `Locale` is `'en' | 'ar'`; `directionOf` maps `ar` to `rtl`. Add a locale by extending the union, `LABELS` and `RTL_LOCALES`.
+- Audience and Settings call `useDocumentDirection(language)`, which sets `lang` and `dir` on `<html>`. Audience reads `xprops.presentation.language`; Settings reads the presenter UI language (`xprops.language`).
+- Style with logical properties (`text-start`, `ms-*`, `pe-*`, `border-s`) rather than `left`/`right`.
+- The Canvas stays pinned to `dir="ltr"` so the slide layout never mirrors; wrap user-authored text in `dir="auto"` so it aligns to its own script.
+- `LABELS.ar` is machine-translated Modern Standard Arabic; have a native speaker review it.
+
 ## Public-repo guardrails
 
 - No secrets committed; installing needs no token by design.

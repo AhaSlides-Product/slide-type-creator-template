@@ -7,11 +7,15 @@ import { useAudiencePlugin, useSync } from '@aha/ui'
 import { ApiClient, SlideType } from '@aha/api'
 import { SubmissionSenderType, SubmissionType } from '@aha/common'
 import { resolveFontFamily, useDeckFont } from '@/iframe/deckFont'
+import { useDocumentDirection, useLabels } from '@/iframe/locale'
 import type { PollConfig } from './config'
 import { API_BASE, POLL_CONFIG_KEY, createDefaultPollConfig, migratePollConfig } from './config'
 
 const plugin: any = useAudiencePlugin()
 const slideProps = computed(() => plugin.slideProps?.value ?? {})
+const language = computed(() => plugin.presentationProps?.value?.language ?? (window as any).xprops?.presentation?.language)
+const { locale } = useDocumentDirection(language)
+const labels = useLabels(locale)
 const slideId = computed(() => Number(slideProps.value?.id ?? 0))
 // Version-scoped local tally (matches Canvas): a "Reset result" / edit bumps
 // slide.version → a fresh channel → the same-browser fallback resets too. CONFIG
@@ -92,7 +96,7 @@ async function submit() {
     // ROLL BACK both the lock and the optimistic tally — the server never counted it.
     submitted.value = false
     votes.value = prevVotes
-    errorMsg.value = 'Could not submit — tap to try again.'
+    errorMsg.value = labels.value.submitFailed
     plugin.showToastError?.('Failed to submit')
   } finally {
     sending.value = false
@@ -108,7 +112,7 @@ async function submit() {
         v-for="opt in config.options"
         :key="opt.id"
         type="button"
-        class="poll-option flex items-center gap-3 rounded-2xl border border-current/20 px-4 py-3 text-left text-base transition-all"
+        class="poll-option flex items-center gap-3 rounded-2xl border border-current/20 px-4 py-3 text-start text-base transition-all"
         :class="[
           selected.has(opt.id) ? 'selected border-current bg-current/10 font-semibold' : '',
           (submitted && !selected.has(opt.id)) ? 'opacity-40' : '',
@@ -132,7 +136,7 @@ async function submit() {
           alt=""
           class="h-10 w-10 shrink-0 rounded-lg object-cover"
         />
-        <span class="flex-1">{{ opt.label || '—' }}</span>
+        <span class="flex-1" dir="auto">{{ opt.label || labels.noOptionLabel }}</span>
       </button>
     </div>
 
@@ -144,14 +148,14 @@ async function submit() {
       data-testid="poll-submit"
       @click="submit"
     >
-      {{ sending ? 'Submitting…' : `Submit${selected.size ? ` (${selected.size})` : ''}` }}
+      {{ sending ? labels.submitting : `${labels.submit}${selected.size ? ` (${selected.size})` : ''}` }}
     </button>
 
     <div v-if="submitted" class="mt-5 flex items-center justify-center gap-2 text-sm font-medium" data-testid="poll-submitted">
       <span class="flex h-6 w-6 items-center justify-center rounded-full" style="background:#36B37E;color:#fff">
         <svg width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
-      Answer submitted
+      {{ labels.answerSubmitted }}
     </div>
     <p v-if="errorMsg" class="mt-3 text-center text-sm" style="color:#FF5630">{{ errorMsg }}</p>
   </div>

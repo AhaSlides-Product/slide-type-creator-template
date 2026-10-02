@@ -15,6 +15,7 @@ import {
   SettingRow,
   SubSettingGroup,
 } from '@/iframe/settings'
+import { useDocumentDirection } from '@/iframe/locale'
 import { SETTINGS_FIELD_GAP_CLASS, SETTINGS_ROOT_CLASS } from '@/iframe/uiStandard'
 import type { PollConfig, PollOption } from './config'
 import {
@@ -29,6 +30,7 @@ import {
 
 const plugin: any = usePresenterPlugin({ autoHeight: true })
 const slideId = computed(() => Number(plugin.slideProps?.value?.id ?? 0))
+useDocumentDirection(computed(() => (window as any).xprops?.language ?? plugin.presentationProps?.value?.language))
 const channel = computed(() => `${POLL_CONFIG_KEY}/s${slideId.value}`)
 const config = useSync<PollConfig>(channel, createDefaultPollConfig())
 
