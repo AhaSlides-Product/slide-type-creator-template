@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // SubSettingGroup — wraps settings that only apply when their parent toggle is on.
 //
-// INDENT ONLY (mt-4 pl-4), no left rail. The indent alone signals "these depend on
+// INDENT ONLY (mt-4 ps-4), no start rail. The indent alone signals "these depend on
 // the row above". Its parent MUST be a bold SectionHeader carrying the master
 // toggle — an indented group under a normal-weight row reads as detached.
 //
@@ -23,6 +23,6 @@
 <style scoped>
 .aha-subgroup {
   margin-top: 16px; /* mt-4 */
-  padding-left: 16px; /* pl-4 — indent only, NO left border */
+  padding-inline-start: 16px; /* ps-4 — indent only, NO start border */
 }
 </style>
