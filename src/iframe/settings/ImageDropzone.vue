@@ -8,7 +8,7 @@
 // (stpancras-storybook-app/src/components/UI/LocalFileUploader.vue): a 2px dashed
 // grey card (`border-gray-50` #D4D4D4) on a faint grey fill (`bg-gray-20` #F7F7F7),
 // `rounded` 4px, hover border → `purple-30` #F9C4D6, and a lavender focus ring
-// (`0 0 0 4px rgba(211,180,255,.30)`). The glyph is Ant's PictureOutlined — the
+// (`0 0 0 4px rgba(231,14,104,.30)`). The glyph is Ant's PictureOutlined — the
 // same image icon OptionRow / ImageActionButton use — at 16px in the settings
 // secondary ink (#4B4B4B, aha-panel-ink).
 //
@@ -231,7 +231,7 @@ function onDrop(ev: DragEvent) {
 }
 .aha-dz-empty:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 4px rgba(211, 180, 255, 0.3); /* LocalFileUploader focus ring */
+  box-shadow: 0 0 0 4px rgba(231, 14, 104, 0.3); /* LocalFileUploader focus ring */
 }
 .aha-dz-empty:disabled {
   cursor: not-allowed;
