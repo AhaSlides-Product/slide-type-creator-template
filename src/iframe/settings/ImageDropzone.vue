@@ -7,7 +7,7 @@
 // STYLE MATCHES the AhaSlides storybook `LocalFileUploader`
 // (stpancras-storybook-app/src/components/UI/LocalFileUploader.vue): a 2px dashed
 // grey card (`border-gray-50` #D4D4D4) on a faint grey fill (`bg-gray-20` #F7F7F7),
-// `rounded` 4px, hover border → `purple-30` #D3B4FF, and a lavender focus ring
+// `rounded` 4px, hover border → `purple-30` #F9C4D6, and a lavender focus ring
 // (`0 0 0 4px rgba(211,180,255,.30)`). The glyph is Ant's PictureOutlined — the
 // same image icon OptionRow / ImageActionButton use — at 16px in the settings
 // secondary ink (#4B4B4B, aha-panel-ink).
@@ -227,7 +227,7 @@ function onDrop(ev: DragEvent) {
 /* LocalFileUploader hover changes ONLY the border → purple-30 (lavender). */
 .aha-dz-empty:hover:not(:disabled),
 .aha-dz-wrap.is-dragging .aha-dz-empty {
-  border-color: #d3b4ff; /* hover:border-purple-30 */
+  border-color: #f9c4d6; /* hover:border-purple-30 */
 }
 .aha-dz-empty:focus-visible {
   outline: none;
@@ -252,7 +252,7 @@ function onDrop(ev: DragEvent) {
 /* Loading text uses the default ink (.aha-dz-title); only the spinner is purple. */
 .aha-dz-spin {
   font-size: 24px;
-  color: #6a1ebb;
+  color: #e70e68;
 }
 /* Filled — the fixed display box ("ô hiển thị") + a hover/focus action overlay. */
 .aha-dz-filled {

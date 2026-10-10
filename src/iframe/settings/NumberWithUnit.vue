@@ -186,11 +186,11 @@ function applyPreset(v: number) {
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .aha-nwu-field:hover:not(.is-disabled) {
-  border-color: #6a1ebb; /* colorPrimary */
+  border-color: #e70e68; /* colorPrimary */
 }
 .aha-nwu-field:focus-within:not(.is-disabled) {
-  border-color: #6a1ebb;
-  box-shadow: 0 0 0 2px #d3b4ff; /* purple-80 focus ring (GAP1) */
+  border-color: #e70e68;
+  box-shadow: 0 0 0 2px #f9c4d6; /* purple-80 focus ring (GAP1) */
 }
 .aha-nwu-field.is-error {
   border-color: #f5222d; /* colorError */
@@ -258,8 +258,8 @@ function applyPreset(v: number) {
   transition: background 0.12s ease, color 0.12s ease;
 }
 .aha-nwu-arrow:hover:not(:disabled) {
-  background: color-mix(in srgb, #6a1ebb 12%, transparent);
-  color: #6a1ebb;
+  background: color-mix(in srgb, #e70e68 12%, transparent);
+  color: #e70e68;
 }
 .aha-nwu-arrow:disabled {
   color: #8a8a99;

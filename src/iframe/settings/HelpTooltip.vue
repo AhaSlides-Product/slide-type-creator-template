@@ -53,7 +53,7 @@ withDefaults(
   outline: none;
 }
 .aha-help-icon:focus-visible {
-  outline: 2px solid #6a1ebb;
+  outline: 2px solid #e70e68;
   outline-offset: 2px;
   border-radius: 50%;
 }

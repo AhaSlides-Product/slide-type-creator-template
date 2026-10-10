@@ -69,12 +69,12 @@ function pick(v: string) {
   transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
 }
 .aha-card:hover:not(:disabled):not(.is-active) {
-  color: #6a1ebb; /* colorPrimary */
+  color: #e70e68; /* colorPrimary */
 }
 .aha-card.is-active {
-  border-color: #6a1ebb;
-  color: #6a1ebb;
-  background: rgba(106, 30, 187, 0.05); /* aha-purple/5 selection tint (settings ink is fixed brand) */
+  border-color: #e70e68;
+  color: #e70e68;
+  background: rgba(231, 14, 104, 0.05); /* aha-purple/5 selection tint (settings ink is fixed brand) */
 }
 .aha-card:disabled {
   color: #b5b5b5;
