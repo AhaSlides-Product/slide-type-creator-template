@@ -121,15 +121,15 @@ function onMenuSelect(key: string) {
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 .aha-imgbtn:hover {
-  background: #f9f5ff; /* purple-10 */
-  color: #8644d4; /* purple-50 */
+  background: #fef3f7; /* purple-10 */
+  color: #e70e68; /* purple-50 */
 }
 .aha-imgbtn:focus-visible {
-  outline: 2px solid #6a1ebb;
+  outline: 2px solid #e70e68;
   outline-offset: 2px;
 }
 .aha-imgbtn.is-loading {
-  color: #6a1ebb;
+  color: #e70e68;
   border: 1px solid #e3e3e3;
   cursor: default;
 }
@@ -148,7 +148,7 @@ function onMenuSelect(key: string) {
 }
 .aha-thumb:hover,
 .aha-thumb:focus-visible {
-  border-color: #6a1ebb; /* colorPrimary */
+  border-color: #e70e68; /* colorPrimary */
   outline: none;
 }
 .aha-thumb-img {

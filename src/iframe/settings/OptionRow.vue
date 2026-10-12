@@ -156,10 +156,10 @@ function toggleCorrect() {
 }
 .aha-opt:hover,
 .aha-opt:focus-within {
-  border-color: #6a1ebb; /* colorPrimary */
+  border-color: #e70e68; /* colorPrimary */
 }
 .aha-opt:focus-within {
-  box-shadow: 0 0 0 2px #d3b4ff; /* purple-80 ring — matches the input family */
+  box-shadow: 0 0 0 2px #f9c4d6; /* purple-80 ring — matches the input family */
 }
 /* Correct → the whole card turns semantic-success green. */
 .aha-opt.is-correct,
@@ -180,7 +180,7 @@ function toggleCorrect() {
   transition: background-color 0.18s ease;
 }
 .aha-opt-drag:hover {
-  background: #f3ecfc; /* faint purple */
+  background: #fef3f7; /* faint purple */
 }
 .aha-opt-main {
   flex: 1;
@@ -221,7 +221,7 @@ function toggleCorrect() {
   color: #fff;
 }
 .aha-opt-correct:focus-visible {
-  outline: 2px solid #6a1ebb;
+  outline: 2px solid #e70e68;
   outline-offset: 2px;
 }
 .aha-opt-ta {
@@ -231,7 +231,7 @@ function toggleCorrect() {
 }
 /* The ROW owns the focus affordance (.aha-opt:focus-within → border + ring).
    The inner borderless textarea must stay flat, but the global storybook-overrides
-   input rules re-colour it on hover/focus anyway (GAP 3 border #d3b4ff, GAP 1 ring),
+   input rules re-colour it on hover/focus anyway (GAP 3 border #f9c4d6, GAP 1 ring),
    which renders a SECOND focus box inside the row. Suppress them so focus shows
    exactly one frame — the row's. */
 .aha-opt-ta:hover,

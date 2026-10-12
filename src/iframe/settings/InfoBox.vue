@@ -134,7 +134,7 @@ function handleClose() {
   opacity: 1;
 }
 .aha-infobox-close:focus-visible {
-  outline: 2px solid #6a1ebb;
+  outline: 2px solid #e70e68;
   outline-offset: 2px;
   border-radius: 4px;
 }
