@@ -108,8 +108,8 @@ extend `config.ts` and render a control here.
   revealed by CSS `:focus-within`). `NumberWithUnit` has no counter and keeps its own fixed width. Don't wrap the field in an extra element, set a width, enlarge it, or move
   the counter beside the field. For option lists use `OptionRow`. NEVER bind AntD's
   `:show-count` to a focus ref (it rebuilds the input DOM and drops the caret). Porting to DS
-  web components (`<aha-*>`)? Follow the `aha-design` settings rules: their `size="large"` is
-  48px and is not used in settings.
+  web components (`<aha-*>`)? Follow the `aha-design` settings rules: settings fields take the
+  default size only (their `size="large"` is 48px; neither large nor small is used in settings).
 
 ## Not done until the judge passes
 
