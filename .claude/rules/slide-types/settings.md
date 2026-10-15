@@ -102,8 +102,8 @@ extend `config.ts` and render a control here.
   already carries the AhaSlides storybook look (Antd is globally registered in `main.ts`) —
   use those directly and reach into `@/iframe/settings` only for composed layout or a shape
   Ant lacks. Brand tokens only, never raw hex.
-- **Text and number fields: `CountedInput` / `CountedTextarea` / `NumberWithUnit` inside
-  `SettingRow layout="stack"`, as they ship.** The stack row makes the field full width; the
+- **Text and number fields: `CountedInput` / `CountedTextarea` / `NumberWithUnit` inside a
+  `SettingRow`, as they ship.** A `layout="stack"` row makes the field full width; the
   counter stays inside the field and shows on focus only (always in the DOM, revealed by CSS
   `:focus-within`). Don't wrap the field in an extra element, set a width, enlarge it, or move
   the counter beside the field. For option lists use `OptionRow`. NEVER bind AntD's
