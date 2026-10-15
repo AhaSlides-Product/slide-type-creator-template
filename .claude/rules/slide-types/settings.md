@@ -102,9 +102,14 @@ extend `config.ts` and render a control here.
   already carries the AhaSlides storybook look (Antd is globally registered in `main.ts`) —
   use those directly and reach into `@/iframe/settings` only for composed layout or a shape
   Ant lacks. Brand tokens only, never raw hex.
-- **Focus-only char counter** = counter-always-in-DOM + CSS `:focus-within`. Reuse
-  `CountedInput` (single fields) / `OptionRow` (option lists) — both encode it. NEVER bind
-  AntD's `:show-count` to a focus ref (it rebuilds the input DOM and drops the caret).
+- **Text and number fields: `CountedInput` / `CountedTextarea` / `NumberWithUnit` inside a
+  `SettingRow`, as they ship.** A `layout="stack"` row makes `CountedInput` / `CountedTextarea`
+  full width; their counter stays inside the field and shows on focus only (always in the DOM,
+  revealed by CSS `:focus-within`). `NumberWithUnit` has no counter and keeps its own fixed width. Don't wrap the field in an extra element, set a width, enlarge it, or move
+  the counter beside the field. For option lists use `OptionRow`. NEVER bind AntD's
+  `:show-count` to a focus ref (it rebuilds the input DOM and drops the caret). Porting to DS
+  web components (`<aha-*>`)? Follow the `aha-design` settings rules: settings fields take the
+  default size only (their `size="large"` is 48px; neither large nor small is used in settings).
 
 ## Not done until the judge passes
 
