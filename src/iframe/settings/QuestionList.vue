@@ -277,6 +277,36 @@ function onChoiceReorder(qid: string, e: { oldIndex?: number; newIndex?: number 
 }
 .aha-ql-collapse {
   margin-bottom: 12px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: #fff;
+  border: 1px solid #e3e3e3; /* colorBorder */
+  border-radius: 8px;
+}
+.aha-ql-collapse:empty {
+  display: none;
+}
+.aha-ql-collapse :deep(.ant-collapse-item) {
+  border-bottom: 0;
+}
+.aha-ql-collapse :deep(.ant-collapse-item + .ant-collapse-item) {
+  border-top: 1px solid #e3e3e3;
+}
+.aha-ql-collapse :deep(.ant-collapse-header) {
+  background: transparent;
+  border-radius: 0;
+  transition: background-color 0.2s ease;
+}
+.aha-ql-collapse :deep(.ant-collapse-header:hover) {
+  background: #f7f7f7; /* bg-hover */
+}
+.aha-ql-collapse :deep(.ant-collapse-item-active > .ant-collapse-header) {
+  background: #fafafa; /* gray-15 */
+  box-shadow: inset 0 -1px 0 #e3e3e3;
+}
+.aha-ql-collapse :deep(.ant-collapse-content) {
+  background: transparent;
+  border-top: 0;
 }
 .aha-ql-answers-hd {
   margin-top: 16px;
