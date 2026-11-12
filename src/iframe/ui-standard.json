@@ -183,7 +183,7 @@
       "subtitle / description": "enableQuestionDescription \u2192 the host renders the description field under the title",
       "question image": "enableQuestionImage \u2192 the host renders its own image picker for the question",
       "countdown / duration": "enableTimeLimit \u2192 read slideProps.timeToAnswer; do not run your own timer authority",
-      "close / lock submissions": "enableStopSubmitssionSetting (doubled s \u2014 see spellingTrap) \u2192 read slideProps.stopSubmission",
+      "close / lock submissions": "enableStopSubmissionSetting \u2192 read slideProps.stopSubmission",
       "hide results until reveal": "enableHideResultSetting \u2192 read slideProps.hideResult",
       "vote / response count": "DEPRECATED (enableVoteCount / setSubmissionCount) \u2014 the host reads audiences_response_count, set automatically from the backend; report nothing",
       "answer more than once": "enableMultipleSubmission \u2192 read slideProps.openEndedMultipleOption",
@@ -225,7 +225,6 @@
       "enableAdditionalFieldsSetting"
     ],
     "emissionNote": "defaultSettings() in scripts/generate-slide-types-api.mjs declares the keys in defaultSettingKeys as false and then spreads the OVERRIDES entry over them. So a key from optInOnlyKeys still reaches the manifest when you set it \u2014 it is simply absent (rather than false) on slides that do not. Setting any flag from either list works the same way.",
-    "spellingTrap": "The close-submissions flag exists in TWO spellings and the manifest emits both: defaultSettings() declares enableStopSubmissionSetting (single s) as false, while every working slide sets enableStopSubmitssionSetting (doubled s) in OVERRIDES \u2014 that doubled-s form is the production spelling the host actually reads. Setting the single-s key to true does nothing. Copy the doubled-s form verbatim.",
     "iframePreloadNote": "Iframe preload is host-side. reuse-host-capabilities lists enableIframePreload, while sample-slide/types.ts records \"no direct enable* key\" for it \u2014 the two disagree, so verify against the host before relying on the flag."
   },
   "settingsLibrary": {

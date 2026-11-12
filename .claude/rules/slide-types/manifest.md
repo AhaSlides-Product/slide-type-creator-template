@@ -42,6 +42,6 @@ Rules:
 - **`setting.enable*` = opt into a host-rendered control** (title, description, timer,
   lock-submission, full-screen, audience-join, …). Turn on ONLY the ones the slide uses — a
   flag on "just in case" leaves a dead control in the host editor. The close-submissions flag
-  is `enableStopSubmitssionSetting` (doubled `ss` — the single-s spelling is a silent no-op).
+  is `enableStopSubmissionSetting`.
 - **Values only.** You may change the VALUE of these keys, never add / remove / rename a key
   — the host reads a fixed shape. Copy an existing entry as the template for a new one.
