@@ -84,10 +84,8 @@ extend `config.ts` and render a control here.
 - **Enable only what you use.** A `setting.enable*` flag turned on "just in case" puts a
   dead control in the host editor. Every flag you set in the manifest must map to behaviour
   the slide actually uses.
-- **Watch the doubled-s trap.** The close-submissions flag is
-  `enableStopSubmitssionSetting` — spelled with a **doubled `ss`** (`...Submitss...`). The
-  correctly-spelled single-s key is a silent no-op. Copy the key from an existing manifest
-  entry rather than retyping it.
+- **Close-submissions flag.** It is `enableStopSubmissionSetting`. Copy the key from an
+  existing manifest entry rather than retyping it.
 - **Transparent surface.** This panel is an iframe inside the host editor, so the host owns
   the background — paint nothing. Ink is a fixed brand token here (the surface behind it is
   the editor's app chrome, not the deck).
